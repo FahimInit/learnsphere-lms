@@ -1,0 +1,27 @@
+{
+  "name": "learnsphere-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LearnSphere — Industry-Standard MERN Learning Management System",
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev:server": "npm --workspace=server run dev",
+    "dev:client": "npm --workspace=client run dev",
+    "build": "npm --workspace=server run build && npm --workspace=client run build",
+    "build:server": "npm --workspace=server run build",
+    "build:client": "npm --workspace=client run build",
+    "typecheck": "npm --workspace=server run typecheck && npm --workspace=client run typecheck",
+    "lint": "npm --workspace=server run lint && npm --workspace=client run lint",
+    "test": "npm --workspace=server run test && npm --workspace=client run test",
+    "test:server": "npm --workspace=server run test",
+    "test:client": "npm --workspace=client run test",
+    "seed": "npm --workspace=server run seed"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  }
+}
