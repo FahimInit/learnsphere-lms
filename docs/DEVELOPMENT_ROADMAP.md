@@ -24,14 +24,14 @@
 - [x] Authentication & RBAC integration test suite
 - [x] Frontend Auth store, silent refresh Axios interceptor, Login/Register/Forgot/Reset/Profile pages
 
-## Phase 3 — Course Management
-- [ ] `Category`, `Course`, `Section`, and `Lesson` models
-- [ ] Local/Cloud storage abstraction for course assets
-- [ ] Category CRUD (Admin) & Course authoring CRUD (Instructor)
-- [ ] Section & Lesson creation, editing, and reordering
-- [ ] Draft -> Pending Review -> Published / Rejected workflow
-- [ ] Course management & ownership test suite
-- [ ] Frontend Instructor Studio: Course Creation Wizard & Curriculum Editor
+## Phase 3 — Course Management (Completed)
+- [x] `Category`, `Course`, `Section`, and `Lesson` models
+- [x] Local/Cloud storage abstraction for course assets
+- [x] Category CRUD (Admin) & Course authoring CRUD (Instructor)
+- [x] Section & Lesson creation, editing, and reordering
+- [x] Draft -> Pending Review -> Published / Rejected workflow
+- [x] Course management & ownership test suite
+- [x] Frontend Instructor Studio: Course Creation Wizard & Curriculum Editor
 
 ## Phase 4 — Student Learning Experience
 - [ ] `Enrollment`, `LessonProgress`, and `CourseReview` models

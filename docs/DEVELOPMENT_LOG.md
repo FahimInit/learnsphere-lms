@@ -27,3 +27,14 @@ This log records architectural milestones, implementation decisions, and verific
   - Verified with 8 integration tests in `server/tests/auth.test.ts` and 3 component tests in `client/src/App.test.tsx`.
   - Built frontend `useAuthStore`, Axios 401 silent refresh interceptor, `ProtectedRoute`/`RoleGuard`/`GuestOnlyRoute`, responsive `Navbar`, and `LoginPage`, `RegisterPage`, `ForgotPasswordPage`, `ResetPasswordPage`, and `ProfilePage`.
 - **Status**: Completed.
+
+## Entry 4 — Phase 3: Course Management, Curriculum Engine & Instructor Studio
+- **Summary**:
+  - Created `Category`, `Course`, `Section`, and `Lesson` Mongoose models with compound filter and full-text search indexes.
+  - Added hardened Multer upload middleware (`server/src/middleware/upload.ts`) integrated with `storageService`.
+  - Implemented Category CRUD (`/api/v1/categories`) with automatic default category seeding.
+  - Implemented Course, Section, and Lesson CRUD, section/lesson reordering, automatic duration and lesson-count recalculation, IDOR ownership enforcement (`assertCourseOwnership`), safe deletion/archiving, and the moderation state machine (`draft -> pending_review -> published | rejected`).
+  - Added public catalog filtering and curriculum payload sanitization (stripping non-preview lesson URLs/content for unauthenticated/non-enrolled visitors).
+  - Verified with 14 passing backend integration tests (`server/tests/courses.test.ts`, `auth.test.ts`, `health.test.ts`) and 4 frontend tests.
+  - Built Frontend Instructor Studio (`InstructorDashboardPage.tsx`, `CourseEditorPage.tsx`).
+- **Status**: Completed.
