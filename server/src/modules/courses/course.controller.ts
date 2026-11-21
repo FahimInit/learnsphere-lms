@@ -195,6 +195,25 @@ export class CourseController {
 
     return sendCreated(res, { file: stored }, 'File uploaded successfully');
   });
+
+  listReviews = asyncHandler(async (req: Request, res: Response) => {
+    const reviews = await courseService.listCourseReviews(req.params.id);
+    return sendSuccess(res, { reviews }, 'Course reviews retrieved');
+  });
+
+  submitReview = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) throw AppError.unauthorized();
+    const result = await courseService.upsertCourseReview(
+      req.params.id,
+      req.user,
+      req.body
+    );
+    return sendCreated(
+      res,
+      result,
+      'Course review saved and rating recalculated'
+    );
+  });
 }
 
 export const courseController = new CourseController();

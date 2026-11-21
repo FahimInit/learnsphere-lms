@@ -1,5 +1,7 @@
 import mongoose, { FilterQuery } from 'mongoose';
 import { Course, ICourseDocument } from './course.model';
+import { CourseReview, ICourseReviewDocument } from './review.model';
+import { Enrollment, IEnrollmentDocument } from '../enrollments/enrollment.model';
 import { Section, ISectionDocument } from '../sections/section.model';
 import { Lesson, ILessonDocument } from '../lessons/lesson.model';
 import { Category } from '../categories/category.model';
@@ -15,6 +17,7 @@ import {
   CreateLessonInput,
   UpdateLessonInput,
   ModerateCourseInput,
+  CreateCourseReviewInput,
 } from './course.validator';
 
 export interface SectionWithLessons {
@@ -642,6 +645,8 @@ export class CourseService {
   ): Promise<{
     course: ICourseDocument;
     sections: SectionWithLessons[];
+    reviews: ICourseReviewDocument[];
+    viewerEnrollment: IEnrollmentDocument | null;
   }> {
     const query: FilterQuery<ICourseDocument> = mongoose.Types.ObjectId.isValid(
       slugOrId
@@ -671,8 +676,21 @@ export class CourseService {
       throw AppError.notFound('Course is not currently published');
     }
 
-    const sections = await Section.find({ course: course._id }).sort({ order: 1 });
-    const lessons = await Lesson.find({ course: course._id }).sort({ order: 1 });
+    const [sections, lessons, reviews, viewerEnrollment] = await Promise.all([
+      Section.find({ course: course._id }).sort({ order: 1 }),
+      Lesson.find({ course: course._id }).sort({ order: 1 }),
+      CourseReview.find({ course: course._id })
+        .populate('student', 'name avatarUrl headline')
+        .sort({ createdAt: -1 })
+        .limit(25),
+      viewer
+        ? Enrollment.findOne({
+            student: viewer.id,
+            course: course._id,
+            status: { $in: ['active', 'completed'] },
+          })
+        : Promise.resolve(null),
+    ]);
 
     const lessonsBySection = new Map<string, Array<Record<string, unknown>>>();
     for (const lesson of lessons) {
@@ -681,7 +699,8 @@ export class CourseService {
         lessonsBySection.set(secId, []);
       }
 
-      const canViewLessonPayload = isPrivilegedViewer || lesson.isPreview;
+      const canViewLessonPayload =
+        isPrivilegedViewer || lesson.isPreview || Boolean(viewerEnrollment);
       lessonsBySection.get(secId)!.push({
         _id: lesson._id.toString(),
         section: secId,
@@ -713,7 +732,69 @@ export class CourseService {
     return {
       course,
       sections: structuredSections,
+      reviews,
+      viewerEnrollment,
     };
+  }
+
+  async listCourseReviews(courseId: string): Promise<ICourseReviewDocument[]> {
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      throw AppError.badRequest('Invalid course ID');
+    }
+
+    return CourseReview.find({ course: courseId })
+      .populate('student', 'name avatarUrl headline')
+      .sort({ createdAt: -1 });
+  }
+
+  async upsertCourseReview(
+    courseId: string,
+    actor: AuthenticatedUser,
+    input: CreateCourseReviewInput
+  ): Promise<{ review: ICourseReviewDocument; course: ICourseDocument }> {
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      throw AppError.badRequest('Invalid course ID');
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      throw AppError.notFound('Course not found');
+    }
+
+    const enrollment = await Enrollment.findOne({
+      student: actor.id,
+      course: course._id,
+      status: { $in: ['active', 'completed'] },
+    });
+
+    if (!enrollment) {
+      throw AppError.forbidden('Only enrolled students can review this course');
+    }
+
+    const review = await CourseReview.findOneAndUpdate(
+      { course: course._id, student: actor.id },
+      {
+        $set: {
+          rating: input.rating,
+          comment: input.comment.trim(),
+        },
+      },
+      { upsert: true, new: true }
+    ).populate('student', 'name avatarUrl headline');
+
+    const allReviews = await CourseReview.find({ course: course._id }).select(
+      'rating'
+    );
+    const reviewCount = allReviews.length;
+    const sumRatings = allReviews.reduce((acc, r) => acc + r.rating, 0);
+    const averageRating =
+      reviewCount > 0 ? Math.round((sumRatings / reviewCount) * 10) / 10 : 0;
+
+    course.reviewCount = reviewCount;
+    course.averageRating = averageRating;
+    await course.save();
+
+    return { review, course };
   }
 }
 

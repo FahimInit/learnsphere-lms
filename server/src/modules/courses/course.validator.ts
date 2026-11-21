@@ -161,6 +161,24 @@ export const moderateCourseSchema = z.object({
   }),
 });
 
+export const createCourseReviewSchema = z.object({
+  params: z.object({
+    id: z.string().min(1),
+  }),
+  body: z.object({
+    rating: z.coerce
+      .number()
+      .int()
+      .min(1, 'Rating must be between 1 and 5')
+      .max(5, 'Rating must be between 1 and 5'),
+    comment: z
+      .string()
+      .trim()
+      .min(3, 'Review comment must be at least 3 characters')
+      .max(2000, 'Review comment cannot exceed 2000 characters'),
+  }),
+});
+
 export type CreateCourseInput = z.infer<typeof createCourseSchema>['body'];
 export type UpdateCourseInput = z.infer<typeof updateCourseSchema>['body'];
 export type CreateSectionInput = z.infer<typeof createSectionSchema>['body'];
@@ -168,3 +186,6 @@ export type UpdateSectionInput = z.infer<typeof updateSectionSchema>['body'];
 export type CreateLessonInput = z.infer<typeof createLessonSchema>['body'];
 export type UpdateLessonInput = z.infer<typeof updateLessonSchema>['body'];
 export type ModerateCourseInput = z.infer<typeof moderateCourseSchema>['body'];
+export type CreateCourseReviewInput = z.infer<
+  typeof createCourseReviewSchema
+>['body'];

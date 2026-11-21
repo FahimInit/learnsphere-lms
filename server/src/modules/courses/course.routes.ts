@@ -10,6 +10,7 @@ import {
   updateLessonSchema,
   reorderLessonsSchema,
   moderateCourseSchema,
+  createCourseReviewSchema,
 } from './course.validator';
 import {
   authenticate,
@@ -149,6 +150,15 @@ router.delete(
   authenticate,
   authorize('instructor', 'admin'),
   courseController.deleteLesson
+);
+
+router.get('/:id/reviews', courseController.listReviews);
+
+router.post(
+  '/:id/reviews',
+  authenticate,
+  validate(createCourseReviewSchema),
+  courseController.submitReview
 );
 
 export default router;
