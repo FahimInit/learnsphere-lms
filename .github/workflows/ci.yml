@@ -1,0 +1,34 @@
+name: LearnSphere CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  verify:
+    name: Typecheck, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Run TypeScript typechecks
+        run: npm run typecheck
+
+      - name: Run Backend & Frontend tests
+        run: npm test
+
+      - name: Build production bundles
+        run: npm run build
