@@ -16,6 +16,10 @@ import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage';
 import { ProfilePage } from '@/features/auth/ProfilePage';
 import { InstructorDashboardPage } from '@/features/instructor/InstructorDashboardPage';
 import { CourseEditorPage } from '@/features/instructor/CourseEditorPage';
+import { CourseCatalogPage } from '@/features/catalog/CourseCatalogPage';
+import { CourseDetailsPage } from '@/features/catalog/CourseDetailsPage';
+import { StudentDashboardPage } from '@/features/learning/StudentDashboardPage';
+import { CoursePlayerPage } from '@/features/learning/CoursePlayerPage';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -58,13 +62,13 @@ function LandingHome(): React.ReactElement {
               to={
                 user.role === 'instructor' || user.role === 'admin'
                   ? '/instructor'
-                  : '/profile'
+                  : '/dashboard'
               }
             >
               <Button variant="outline" size="lg">
                 {user.role === 'instructor' || user.role === 'admin'
                   ? 'Open Instructor Studio'
-                  : 'Account Settings'}
+                  : 'My Learning Dashboard'}
               </Button>
             </Link>
           ) : (
@@ -132,6 +136,8 @@ export function AppRoutes(): React.ReactElement {
     <MainLayout>
       <Routes>
         <Route path="/" element={<LandingHome />} />
+        <Route path="/courses" element={<CourseCatalogPage />} />
+        <Route path="/courses/:slugOrId" element={<CourseDetailsPage />} />
         <Route
           path="/login"
           element={
@@ -155,6 +161,22 @@ export function AppRoutes(): React.ReactElement {
           element={
             <ProtectedRoute>
               <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <StudentDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/learn/:courseId"
+          element={
+            <ProtectedRoute>
+              <CoursePlayerPage />
             </ProtectedRoute>
           }
         />

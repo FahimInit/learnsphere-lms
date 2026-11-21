@@ -6,6 +6,8 @@ import App from './App';
 import { LoginPage } from './features/auth/LoginPage';
 import { RegisterPage } from './features/auth/RegisterPage';
 import { InstructorDashboardPage } from './features/instructor/InstructorDashboardPage';
+import { CourseCatalogPage } from './features/catalog/CourseCatalogPage';
+import { StudentDashboardPage } from './features/learning/StudentDashboardPage';
 import { useAuthStore } from './stores/authStore';
 
 function renderWithProviders(ui: React.ReactElement, initialRoute = '/') {
@@ -19,7 +21,7 @@ function renderWithProviders(ui: React.ReactElement, initialRoute = '/') {
   );
 }
 
-describe('LearnSphere Frontend Foundation, Auth & Instructor Views', () => {
+describe('LearnSphere Frontend Views & Interactive Workflows', () => {
   beforeEach(() => {
     useAuthStore.setState({
       user: null,
@@ -63,5 +65,45 @@ describe('LearnSphere Frontend Foundation, Auth & Instructor Views', () => {
     fireEvent.click(getByText('New Course'));
     expect(getByText('Create New Course')).toBeInTheDocument();
     expect(getByText('Create Draft & Open Editor')).toBeInTheDocument();
+  });
+
+  it('renders CourseCatalogPage with search bar and filter controls', () => {
+    const { getByText, getByLabelText } = renderWithProviders(
+      <CourseCatalogPage />,
+      '/courses'
+    );
+    expect(getByText('Explore Industry-Standard Courses')).toBeInTheDocument();
+    expect(getByLabelText('Search courses')).toBeInTheDocument();
+    expect(getByLabelText('Filter by difficulty level')).toBeInTheDocument();
+    expect(getByLabelText('Filter by price')).toBeInTheDocument();
+  });
+
+  it('renders StudentDashboardPage with KPI cards and enrollment filter tabs', () => {
+    useAuthStore.setState({
+      user: {
+        id: 'u1',
+        name: 'Alice Learner',
+        email: 'alice@learnsphere.test',
+        role: 'student',
+        status: 'active',
+        avatarUrl: '',
+        headline: '',
+        bio: '',
+        isEmailVerified: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      accessToken: 'test-token',
+      isInitialized: true,
+      isLoading: false,
+    });
+
+    const { getByText } = renderWithProviders(
+      <StudentDashboardPage />,
+      '/dashboard'
+    );
+    expect(getByText(/Welcome back, Alice Learner/i)).toBeInTheDocument();
+    expect(getByText('Enrolled Courses')).toBeInTheDocument();
+    expect(getByText('Average Completion')).toBeInTheDocument();
   });
 });
