@@ -32,6 +32,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { InstructorAssessmentsPanel } from '@/features/assessments/InstructorAssessmentsPanel';
 import {
   Card,
   CardHeader,
@@ -57,7 +58,7 @@ function getLessonIcon(type: LessonType): React.ReactElement {
 export function CourseEditorPage(): React.ReactElement {
   const { courseId } = useParams<{ courseId: string }>();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'curriculum' | 'settings'>('curriculum');
+  const [activeTab, setActiveTab] = useState<'curriculum' | 'assessments' | 'settings'>('curriculum');
   const [statusBanner, setStatusBanner] = useState<{
     type: 'success' | 'error';
     message: string;
@@ -463,6 +464,17 @@ export function CourseEditorPage(): React.ReactElement {
         </button>
         <button
           type="button"
+          onClick={() => setActiveTab('assessments')}
+          className={`border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+            activeTab === 'assessments'
+              ? 'border-indigo-600 text-indigo-600'
+              : 'border-transparent text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          Assessments &amp; Grading
+        </button>
+        <button
+          type="button"
           onClick={() => setActiveTab('settings')}
           className={`border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
             activeTab === 'settings'
@@ -470,7 +482,7 @@ export function CourseEditorPage(): React.ReactElement {
               : 'border-transparent text-slate-600 hover:text-slate-900'
           }`}
         >
-          Course Details & Metadata
+          Course Details &amp; Metadata
         </button>
       </div>
 
@@ -665,6 +677,8 @@ export function CourseEditorPage(): React.ReactElement {
             </div>
           )}
         </div>
+      ) : activeTab === 'assessments' ? (
+        <InstructorAssessmentsPanel courseId={course._id} />
       ) : (
         <Card>
           <CardHeader>
