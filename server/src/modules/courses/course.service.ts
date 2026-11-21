@@ -657,10 +657,12 @@ export class CourseService {
       throw AppError.notFound('Course not found');
     }
 
-    const instructorId =
-      typeof course.instructor === 'object' && '_id' in course.instructor
-        ? (course.instructor as { _id: mongoose.Types.ObjectId })._id.toString()
-        : course.instructor.toString();
+    const instructorObj = course.instructor as unknown as {
+      _id?: mongoose.Types.ObjectId;
+    };
+    const instructorId = instructorObj._id
+      ? instructorObj._id.toString()
+      : String(course.instructor);
 
     const isPrivilegedViewer =
       viewer?.role === 'admin' || viewer?.id === instructorId;
