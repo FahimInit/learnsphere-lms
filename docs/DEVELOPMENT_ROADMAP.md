@@ -16,13 +16,13 @@
 - [x] Frontend Vitest + React Testing Library setup
 - [x] Dockerfiles, `docker-compose.yml`, and GitHub Actions CI pipeline
 
-## Phase 2 — Authentication & User Management
-- [ ] `User` Mongoose model & password hashing utilities
-- [ ] JWT access/refresh rotation, cookie handling, and token revocation
-- [ ] Registration, Login, Logout, Refresh, Forgot/Reset Password, and `/me` endpoints
-- [ ] Profile viewing, editing, and password update endpoints
-- [ ] Authentication & RBAC integration test suite
-- [ ] Frontend Auth store, silent refresh Axios interceptor, Login/Register/Forgot/Reset/Profile pages
+## Phase 2 — Authentication & User Management (Completed)
+- [x] `User` Mongoose model & password hashing utilities
+- [x] JWT access/refresh rotation, cookie handling, and token revocation
+- [x] Registration, Login, Logout, Refresh, Forgot/Reset Password, and `/me` endpoints
+- [x] Profile viewing, editing, and password update endpoints
+- [x] Authentication & RBAC integration test suite
+- [x] Frontend Auth store, silent refresh Axios interceptor, Login/Register/Forgot/Reset/Profile pages
 
 ## Phase 3 — Course Management
 - [ ] `Category`, `Course`, `Section`, and `Lesson` models

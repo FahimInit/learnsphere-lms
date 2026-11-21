@@ -17,3 +17,13 @@ This log records architectural milestones, implementation decisions, and verific
   - Implemented frontend foundation (`client/`): React 18 + Vite + TypeScript + Tailwind CSS, reusable UI components (`Button`, `Card`, `Badge`, `Input`, `Skeleton`), Axios client, and initial component tests.
   - Configured multi-stage `Dockerfile`s, `docker-compose.yml` with healthchecks, and `.github/workflows/ci.yml` targeting `master`.
 - **Status**: Completed.
+
+## Entry 3 — Phase 2: Authentication, RBAC & User Profile Management
+- **Summary**:
+  - Created `User` Mongoose model (`server/src/modules/users/user.model.ts`) with `bcryptjs` password hashing, `select: false` sensitive fields, bounded refresh-token session storage, and public profile serialization.
+  - Implemented JWT utilities (`server/src/utils/jwt.ts`) with unique `jti` claims on refresh tokens, SHA-256 token hashing, and `httpOnly` cookie management.
+  - Added `authenticate`, `optionalAuthenticate`, and `authorize(...roles)` RBAC middlewares (`server/src/middleware/auth.ts`) enforcing active account status on every request.
+  - Built `/api/v1/auth` and `/api/v1/users` modules (registration, login, refresh rotation with replay revocation, logout, forgot/reset password, email verification, profile update, password change, and student-to-instructor upgrade).
+  - Verified with 8 integration tests in `server/tests/auth.test.ts` and 3 component tests in `client/src/App.test.tsx`.
+  - Built frontend `useAuthStore`, Axios 401 silent refresh interceptor, `ProtectedRoute`/`RoleGuard`/`GuestOnlyRoute`, responsive `Navbar`, and `LoginPage`, `RegisterPage`, `ForgotPasswordPage`, `ResetPasswordPage`, and `ProfilePage`.
+- **Status**: Completed.
