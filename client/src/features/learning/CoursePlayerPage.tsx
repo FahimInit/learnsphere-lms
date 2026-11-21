@@ -20,6 +20,7 @@ import { LessonItem, LessonType } from '@/types/course';
 import { LearningWorkspacePayload } from '@/types/learning';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { StudentAssessmentsPanel } from '@/features/assessments/StudentAssessmentsPanel';
 import {
   Card,
   CardHeader,
@@ -516,6 +517,8 @@ export function CoursePlayerPage(): React.ReactElement {
               ) : null}
             </>
           )}
+
+          <StudentAssessmentsPanel courseId={course._id} />
         </section>
       </div>
     </div>

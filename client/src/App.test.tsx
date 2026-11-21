@@ -8,6 +8,8 @@ import { RegisterPage } from './features/auth/RegisterPage';
 import { InstructorDashboardPage } from './features/instructor/InstructorDashboardPage';
 import { CourseCatalogPage } from './features/catalog/CourseCatalogPage';
 import { StudentDashboardPage } from './features/learning/StudentDashboardPage';
+import { InstructorAssessmentsPanel } from './features/assessments/InstructorAssessmentsPanel';
+import { StudentAssessmentsPanel } from './features/assessments/StudentAssessmentsPanel';
 import { useAuthStore } from './stores/authStore';
 
 function renderWithProviders(ui: React.ReactElement, initialRoute = '/') {
@@ -105,5 +107,30 @@ describe('LearnSphere Frontend Views & Interactive Workflows', () => {
     expect(getByText(/Welcome back, Alice Learner/i)).toBeInTheDocument();
     expect(getByText('Enrolled Courses')).toBeInTheDocument();
     expect(getByText('Average Completion')).toBeInTheDocument();
+  });
+
+  it('renders InstructorAssessmentsPanel with quiz and assignment builders', () => {
+    const { getByText } = renderWithProviders(
+      <InstructorAssessmentsPanel courseId="course-1" />,
+      '/instructor'
+    );
+    expect(getByText(/Quizzes & Question Bank/i)).toBeInTheDocument();
+    expect(
+      getByText(/Assignments & Student Submissions/i)
+    ).toBeInTheDocument();
+    expect(getByText('Create Quiz')).toBeInTheDocument();
+    expect(getByText('Create Assignment')).toBeInTheDocument();
+  });
+
+  it('renders StudentAssessmentsPanel and toggles between quizzes and assignments tabs', () => {
+    const { getByText } = renderWithProviders(
+      <StudentAssessmentsPanel courseId="course-1" />,
+      '/learn/course-1'
+    );
+    expect(getByText('Course Assessments')).toBeInTheDocument();
+    expect(getByText(/No quizzes published/i)).toBeInTheDocument();
+
+    fireEvent.click(getByText(/Assignments \(0\)/i));
+    expect(getByText(/No assignments published/i)).toBeInTheDocument();
   });
 });
