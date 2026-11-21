@@ -40,12 +40,12 @@
 - [x] Enrollment & progress integration test suite
 - [x] Frontend Public Landing Page, Course Catalog, Course Details, Student Dashboard, and Learning Player UI
 
-## Phase 5 — Assessment System (Quizzes & Assignments)
-- [ ] `Quiz`, `Question`, `QuizAttempt`, `Assignment`, and `Submission` models
-- [ ] Server-side automatic quiz grading (with student answer stripping)
-- [ ] Assignment submission, file upload validation, resubmission rules, and instructor grading with grade history
-- [ ] Assessment integration test suite
-- [ ] Frontend Quiz Editor, Quiz Runner, Assignment Editor, Student Submission UI, and Instructor Grading Portal
+## Phase 5 — Assessment System (Completed)
+- [x] `Quiz`, `Question`, `QuizAttempt`, `Assignment`, and `Submission` models
+- [x] Server-side automatic quiz grading (with student answer stripping)
+- [x] Assignment submission, file upload validation, resubmission rules, and instructor grading with grade history
+- [x] Assessment integration test suite
+- [x] Frontend Quiz Editor, Quiz Runner, Assignment Editor, Student Submission UI, and Instructor Grading Portal
 
 ## Phase 6 — Engagement (Discussions, Announcements & Notifications)
 - [ ] `Discussion`, `Comment`, `Announcement`, and `Notification` models

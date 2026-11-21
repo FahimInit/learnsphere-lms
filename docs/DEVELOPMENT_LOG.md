@@ -47,3 +47,12 @@ This log records architectural milestones, implementation decisions, and verific
   - Verified with 17 passing backend integration tests across 4 suites (`learning.test.ts`, `courses.test.ts`, `auth.test.ts`, `health.test.ts`) and 6 passing frontend component tests.
   - Built Frontend Student Learning views: `CourseCatalogPage.tsx`, `CourseDetailsPage.tsx`, `StudentDashboardPage.tsx`, and `CoursePlayerPage.tsx`.
 - **Status**: Completed.
+
+## Entry 6 — Phase 5: Assessment System (Quizzes & Assignments)
+- **Summary**:
+  - Created `Quiz`, `Question`, `QuizAttempt`, `Assignment`, and `Submission` Mongoose models with compound unique indexes (`{ quiz: 1, student: 1, attemptNumber: 1 }`, `{ assignment: 1, student: 1 }`).
+  - Implemented `/api/v1/quizzes` supporting `mcq`, `multi_select`, and `true_false` questions, strict stripping of `correctOptionIds` and `explanation` for student quiz reads, attempt limit enforcement, and deterministic server-side grading.
+  - Implemented `/api/v1/assignments` and `/api/v1/submissions` supporting validated attachment uploads, due dates, resubmission limits, and instructor grading with an immutable `gradeHistory` log.
+  - Verified with 19 passing backend integration tests across 5 suites (`assessments.test.ts`, `learning.test.ts`, `courses.test.ts`, `auth.test.ts`, `health.test.ts`) and 8 passing frontend component tests.
+  - Built `InstructorAssessmentsPanel.tsx` (integrated into `CourseEditorPage.tsx`) and `StudentAssessmentsPanel.tsx` (integrated into `CoursePlayerPage.tsx`).
+- **Status**: Completed.
