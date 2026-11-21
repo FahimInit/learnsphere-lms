@@ -6,15 +6,15 @@
 - [x] 19-model MongoDB schema & indexing specification
 - [x] Phased development roadmap & risk mitigation matrix
 
-## Phase 1 — Foundation (In Progress)
+## Phase 1 — Foundation (Completed)
 - [x] Git initialization on `master` branch with self-ignored `.gitignore`
 - [x] Root npm workspace monorepo & shared TypeScript configuration
 - [x] Core engineering documentation (`docs/*` & `README.md`)
-- [ ] Backend Express + TypeScript + Zod + Error Handling + Logger + Swagger + Healthcheck
-- [ ] Backend Vitest + Supertest test harness
-- [ ] Frontend React + Vite + TypeScript + Tailwind + UI primitives + Router shell
-- [ ] Frontend Vitest + React Testing Library setup
-- [ ] Dockerfiles, `docker-compose.yml`, and GitHub Actions CI pipeline
+- [x] Backend Express + TypeScript + Zod + Error Handling + Logger + Swagger + Healthcheck
+- [x] Backend Vitest + Supertest test harness
+- [x] Frontend React + Vite + TypeScript + Tailwind + UI primitives + Router shell
+- [x] Frontend Vitest + React Testing Library setup
+- [x] Dockerfiles, `docker-compose.yml`, and GitHub Actions CI pipeline
 
 ## Phase 2 — Authentication & User Management
 - [ ] `User` Mongoose model & password hashing utilities

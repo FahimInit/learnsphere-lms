@@ -8,8 +8,12 @@ This log records architectural milestones, implementation decisions, and verific
 - **Summary**: Completed full system analysis, resolved domain ambiguities (pricing/enrollment adapter, local-first storage provider abstraction, self-registration role boundary), designed 19 Mongoose collections with compound unique indexes, and defined the 8-phase engineering roadmap.
 - **Status**: Approved.
 
-## Entry 2 — Phase 1 (In Progress): Monorepo & Documentation Foundation
+## Entry 2 — Phase 1: Monorepo, Backend/Frontend Foundation, Docker & CI
 - **Summary**:
   - Initialized Git repository on `master` branch with self-ignoring `.gitignore`.
   - Created `.env.example`, `.dockerignore`, root `package.json` (npm workspaces for `server` and `client`), and `tsconfig.base.json`.
   - Authored `docs/PROJECT_OVERVIEW.md`, `docs/REQUIREMENTS.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE_DESIGN.md`, `docs/API_DOCUMENTATION.md`, `docs/SECURITY.md`, and `docs/DEVELOPMENT_ROADMAP.md`.
+  - Implemented backend foundation (`server/`): Zod environment config, Mongoose connection manager, OpenAPI 3.0 Swagger setup, `AppError`, `errorHandler`, `validate`, `rateLimiter`, `storageService`, `emailService`, `socketService`, `/api/v1/health`, and Supertest integration test suite.
+  - Implemented frontend foundation (`client/`): React 18 + Vite + TypeScript + Tailwind CSS, reusable UI components (`Button`, `Card`, `Badge`, `Input`, `Skeleton`), Axios client, and initial component tests.
+  - Configured multi-stage `Dockerfile`s, `docker-compose.yml` with healthchecks, and `.github/workflows/ci.yml` targeting `master`.
+- **Status**: Completed.
