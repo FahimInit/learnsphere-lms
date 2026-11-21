@@ -4,6 +4,8 @@ import { openApiSpec } from '../config/swagger';
 import { sendSuccess } from '../utils/apiResponse';
 import authRoutes from '../modules/auth/auth.routes';
 import userRoutes from '../modules/users/user.routes';
+import categoryRoutes from '../modules/categories/category.routes';
+import courseRoutes from '../modules/courses/course.routes';
 
 const router = Router();
 
@@ -28,5 +30,7 @@ router.get('/docs.json', (_req: Request, res: Response) => {
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/courses', courseRoutes);
 
 export default router;
