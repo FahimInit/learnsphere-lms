@@ -33,12 +33,12 @@
 - [x] Course management & ownership test suite
 - [x] Frontend Instructor Studio: Course Creation Wizard & Curriculum Editor
 
-## Phase 4 — Student Learning Experience
-- [ ] `Enrollment`, `LessonProgress`, and `CourseReview` models
-- [ ] Course catalog search, filter, sort, and pagination engine
-- [ ] Enrollment verification, deterministic progress tracking, and resume-lesson calculation
-- [ ] Enrollment & progress integration test suite
-- [ ] Frontend Public Landing Page, Course Catalog, Course Details, Student Dashboard, and Learning Player UI
+## Phase 4 — Student Learning Experience (Completed)
+- [x] `Enrollment`, `LessonProgress`, and `CourseReview` models
+- [x] Course catalog search, filter, sort, and pagination engine
+- [x] Enrollment verification, deterministic progress tracking, and resume-lesson calculation
+- [x] Enrollment & progress integration test suite
+- [x] Frontend Public Landing Page, Course Catalog, Course Details, Student Dashboard, and Learning Player UI
 
 ## Phase 5 — Assessment System (Quizzes & Assignments)
 - [ ] `Quiz`, `Question`, `QuizAttempt`, `Assignment`, and `Submission` models

@@ -38,3 +38,12 @@ This log records architectural milestones, implementation decisions, and verific
   - Verified with 14 passing backend integration tests (`server/tests/courses.test.ts`, `auth.test.ts`, `health.test.ts`) and 4 frontend tests.
   - Built Frontend Instructor Studio (`InstructorDashboardPage.tsx`, `CourseEditorPage.tsx`).
 - **Status**: Completed.
+
+## Entry 5 — Phase 4: Student Learning Experience, Enrollment & Progress Engine
+- **Summary**:
+  - Created `Enrollment`, `LessonProgress`, and `CourseReview` Mongoose models with compound unique indexes (`{ student: 1, course: 1 }`, `{ student: 1, lesson: 1 }`, `{ course: 1, student: 1 }`).
+  - Implemented `/api/v1/enrollments` (1-click enrollment with duplicate prevention, `my-enrollments`, protected `learn` workspace loader, and instructor enrolled-students list) and `/api/v1/progress` (deterministic lesson completion toggle with automatic `100% -> completed` transition, personal lesson notes, and resume-lesson tracking).
+  - Implemented course reviews (`GET / POST /api/v1/courses/:id/reviews`) with automatic `averageRating` and `reviewCount` recalculation.
+  - Verified with 17 passing backend integration tests across 4 suites (`learning.test.ts`, `courses.test.ts`, `auth.test.ts`, `health.test.ts`) and 6 passing frontend component tests.
+  - Built Frontend Student Learning views: `CourseCatalogPage.tsx`, `CourseDetailsPage.tsx`, `StudentDashboardPage.tsx`, and `CoursePlayerPage.tsx`.
+- **Status**: Completed.
