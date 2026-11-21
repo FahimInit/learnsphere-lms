@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import App from './App';
 import { LoginPage } from './features/auth/LoginPage';
 import { RegisterPage } from './features/auth/RegisterPage';
+import { InstructorDashboardPage } from './features/instructor/InstructorDashboardPage';
 import { useAuthStore } from './stores/authStore';
 
 function renderWithProviders(ui: React.ReactElement, initialRoute = '/') {
@@ -18,7 +19,7 @@ function renderWithProviders(ui: React.ReactElement, initialRoute = '/') {
   );
 }
 
-describe('LearnSphere Frontend Foundation & Authentication Views', () => {
+describe('LearnSphere Frontend Foundation, Auth & Instructor Views', () => {
   beforeEach(() => {
     useAuthStore.setState({
       user: null,
@@ -50,5 +51,17 @@ describe('LearnSphere Frontend Foundation & Authentication Views', () => {
 
     fireEvent.click(getByText('Instructor'));
     expect(getByText('Create Instructor Account')).toBeInTheDocument();
+  });
+
+  it('renders InstructorDashboardPage and opens the Create New Course wizard modal', () => {
+    const { getByText } = renderWithProviders(
+      <InstructorDashboardPage />,
+      '/instructor'
+    );
+    expect(getByText('Instructor Studio')).toBeInTheDocument();
+
+    fireEvent.click(getByText('New Course'));
+    expect(getByText('Create New Course')).toBeInTheDocument();
+    expect(getByText('Create Draft & Open Editor')).toBeInTheDocument();
   });
 });

@@ -4,12 +4,18 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BookOpen, ShieldCheck, BarChart3 } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { ProtectedRoute, GuestOnlyRoute } from '@/components/layout/RouteGuards';
+import {
+  ProtectedRoute,
+  RoleGuard,
+  GuestOnlyRoute,
+} from '@/components/layout/RouteGuards';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { RegisterPage } from '@/features/auth/RegisterPage';
 import { ForgotPasswordPage } from '@/features/auth/ForgotPasswordPage';
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage';
 import { ProfilePage } from '@/features/auth/ProfilePage';
+import { InstructorDashboardPage } from '@/features/instructor/InstructorDashboardPage';
+import { CourseEditorPage } from '@/features/instructor/CourseEditorPage';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -48,9 +54,17 @@ function LandingHome(): React.ReactElement {
             <Button size="lg">Explore Catalog</Button>
           </Link>
           {user ? (
-            <Link to="/profile">
+            <Link
+              to={
+                user.role === 'instructor' || user.role === 'admin'
+                  ? '/instructor'
+                  : '/profile'
+              }
+            >
               <Button variant="outline" size="lg">
-                Account Settings
+                {user.role === 'instructor' || user.role === 'admin'
+                  ? 'Open Instructor Studio'
+                  : 'Account Settings'}
               </Button>
             </Link>
           ) : (
@@ -142,6 +156,22 @@ export function AppRoutes(): React.ReactElement {
             <ProtectedRoute>
               <ProfilePage />
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/instructor"
+          element={
+            <RoleGuard allowedRoles={['instructor', 'admin']}>
+              <InstructorDashboardPage />
+            </RoleGuard>
+          }
+        />
+        <Route
+          path="/instructor/courses/:courseId/edit"
+          element={
+            <RoleGuard allowedRoles={['instructor', 'admin']}>
+              <CourseEditorPage />
+            </RoleGuard>
           }
         />
         <Route path="*" element={<LandingHome />} />
