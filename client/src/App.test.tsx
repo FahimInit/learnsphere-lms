@@ -10,6 +10,8 @@ import { CourseCatalogPage } from './features/catalog/CourseCatalogPage';
 import { StudentDashboardPage } from './features/learning/StudentDashboardPage';
 import { InstructorAssessmentsPanel } from './features/assessments/InstructorAssessmentsPanel';
 import { StudentAssessmentsPanel } from './features/assessments/StudentAssessmentsPanel';
+import { NotificationsPage } from './features/notifications/NotificationsPage';
+import { CourseCommunityPanel } from './features/discussions/CourseCommunityPanel';
 import { useAuthStore } from './stores/authStore';
 
 function renderWithProviders(ui: React.ReactElement, initialRoute = '/') {
@@ -132,5 +134,28 @@ describe('LearnSphere Frontend Views & Interactive Workflows', () => {
 
     fireEvent.click(getByText(/Assignments \(0\)/i));
     expect(getByText(/No assignments published/i)).toBeInTheDocument();
+  });
+
+  it('renders NotificationsPage with unread filter and mark-all-read action', () => {
+    const { getByText } = renderWithProviders(
+      <NotificationsPage />,
+      '/notifications'
+    );
+    expect(getByText('Notification Center')).toBeInTheDocument();
+    expect(getByText('Mark All Read')).toBeInTheDocument();
+  });
+
+  it('renders CourseCommunityPanel with discussions and instructor announcement publisher', () => {
+    const { getByText } = renderWithProviders(
+      <CourseCommunityPanel courseId="course-1" canManage />,
+      '/instructor'
+    );
+    expect(
+      getByText(/Course Discussions & Announcements/i)
+    ).toBeInTheDocument();
+    expect(getByText('Start a Discussion Thread')).toBeInTheDocument();
+
+    fireEvent.click(getByText(/Announcements \(0\)/i));
+    expect(getByText('Broadcast Course Announcement')).toBeInTheDocument();
   });
 });

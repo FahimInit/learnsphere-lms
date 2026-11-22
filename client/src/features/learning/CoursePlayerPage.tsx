@@ -21,6 +21,7 @@ import { LearningWorkspacePayload } from '@/types/learning';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StudentAssessmentsPanel } from '@/features/assessments/StudentAssessmentsPanel';
+import { CourseCommunityPanel } from '@/features/discussions/CourseCommunityPanel';
 import {
   Card,
   CardHeader,
@@ -519,6 +520,7 @@ export function CoursePlayerPage(): React.ReactElement {
           )}
 
           <StudentAssessmentsPanel courseId={course._id} />
+          <CourseCommunityPanel courseId={course._id} />
         </section>
       </div>
     </div>

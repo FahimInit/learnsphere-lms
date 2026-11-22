@@ -20,6 +20,7 @@ import { CourseCatalogPage } from '@/features/catalog/CourseCatalogPage';
 import { CourseDetailsPage } from '@/features/catalog/CourseDetailsPage';
 import { StudentDashboardPage } from '@/features/learning/StudentDashboardPage';
 import { CoursePlayerPage } from '@/features/learning/CoursePlayerPage';
+import { NotificationsPage } from '@/features/notifications/NotificationsPage';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -177,6 +178,14 @@ export function AppRoutes(): React.ReactElement {
           element={
             <ProtectedRoute>
               <CoursePlayerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <NotificationsPage />
             </ProtectedRoute>
           }
         />
