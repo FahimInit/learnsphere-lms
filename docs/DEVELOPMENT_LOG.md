@@ -56,3 +56,12 @@ This log records architectural milestones, implementation decisions, and verific
   - Verified with 19 passing backend integration tests across 5 suites (`assessments.test.ts`, `learning.test.ts`, `courses.test.ts`, `auth.test.ts`, `health.test.ts`) and 8 passing frontend component tests.
   - Built `InstructorAssessmentsPanel.tsx` (integrated into `CourseEditorPage.tsx`) and `StudentAssessmentsPanel.tsx` (integrated into `CoursePlayerPage.tsx`).
 - **Status**: Completed.
+
+## Entry 7 — Phase 6: Engagement (Discussions, Announcements & Notifications)
+- **Summary**:
+  - Created `Notification`, `Discussion`, `Comment`, and `Announcement` Mongoose models with optimized sorting and reporting indexes.
+  - Implemented `notificationService` with MongoDB persistence and Socket.IO `emitToUser` / `emitToCourse` real-time delivery, wired into enrollment, course moderation, quiz results, assignment grading, discussion replies, and bulk course announcements.
+  - Implemented `/api/v1/discussions` (threaded Q&A, instructor reply flags, pin/resolve moderation, content reporting, and instructor announcements) and `/api/v1/notifications` (paginated inbox, unread filtering, IDOR-protected read marking, mark-all-read).
+  - Verified with 21 passing backend integration tests across 6 suites (`engagement.test.ts` + prior suites) and 10 passing frontend component tests.
+  - Built `NotificationBell.tsx`, `NotificationsPage.tsx`, `useNotificationsSocket.ts`, and `CourseCommunityPanel.tsx` (integrated into `CoursePlayerPage.tsx` and `CourseEditorPage.tsx`).
+- **Status**: Completed.

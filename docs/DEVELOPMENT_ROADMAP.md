@@ -47,11 +47,11 @@
 - [x] Assessment integration test suite
 - [x] Frontend Quiz Editor, Quiz Runner, Assignment Editor, Student Submission UI, and Instructor Grading Portal
 
-## Phase 6 — Engagement (Discussions, Announcements & Notifications)
-- [ ] `Discussion`, `Comment`, `Announcement`, and `Notification` models
-- [ ] Threaded discussions, instructor badges, content reporting, and course announcements
-- [ ] Notification service with Socket.IO real-time push delivery
-- [ ] Engagement integration tests & Frontend Discussion Forum, Announcements, and Notification Center
+## Phase 6 — Engagement (Completed)
+- [x] `Discussion`, `Comment`, `Announcement`, and `Notification` models
+- [x] Threaded discussions, instructor badges, content reporting, and course announcements
+- [x] Notification service with Socket.IO real-time push delivery
+- [x] Engagement integration tests & Frontend Discussion Forum, Announcements, and Notification Center
 
 ## Phase 7 — Certificates & Analytics
 - [ ] `Certificate` and `AuditLog` models
