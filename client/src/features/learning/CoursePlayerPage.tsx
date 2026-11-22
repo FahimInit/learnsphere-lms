@@ -235,10 +235,12 @@ export function CoursePlayerPage(): React.ReactElement {
             </div>
 
             {progressPercentage === 100 ? (
-              <Badge variant="success">
-                <Award className="mr-1 h-3.5 w-3.5" />
-                Course Completed
-              </Badge>
+              <Link to="/dashboard">
+                <Badge variant="success" className="cursor-pointer">
+                  <Award className="mr-1 h-3.5 w-3.5" />
+                  Completed • View Certificate
+                </Badge>
+              </Link>
             ) : null}
           </div>
         </div>

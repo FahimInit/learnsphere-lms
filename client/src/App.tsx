@@ -21,6 +21,8 @@ import { CourseDetailsPage } from '@/features/catalog/CourseDetailsPage';
 import { StudentDashboardPage } from '@/features/learning/StudentDashboardPage';
 import { CoursePlayerPage } from '@/features/learning/CoursePlayerPage';
 import { NotificationsPage } from '@/features/notifications/NotificationsPage';
+import { CertificateViewerPage } from '@/features/certificates/CertificateViewerPage';
+import { AdminConsolePage } from '@/features/admin/AdminConsolePage';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -202,6 +204,26 @@ export function AppRoutes(): React.ReactElement {
           element={
             <RoleGuard allowedRoles={['instructor', 'admin']}>
               <CourseEditorPage />
+            </RoleGuard>
+          }
+        />
+        <Route
+          path="/certificates/verify"
+          element={<CertificateViewerPage />}
+        />
+        <Route
+          path="/certificates/verify/:code"
+          element={<CertificateViewerPage />}
+        />
+        <Route
+          path="/certificates/:code"
+          element={<CertificateViewerPage />}
+        />
+        <Route
+          path="/admin"
+          element={
+            <RoleGuard allowedRoles={['admin']}>
+              <AdminConsolePage />
             </RoleGuard>
           }
         />

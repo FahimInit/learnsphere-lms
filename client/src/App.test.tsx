@@ -12,6 +12,8 @@ import { InstructorAssessmentsPanel } from './features/assessments/InstructorAss
 import { StudentAssessmentsPanel } from './features/assessments/StudentAssessmentsPanel';
 import { NotificationsPage } from './features/notifications/NotificationsPage';
 import { CourseCommunityPanel } from './features/discussions/CourseCommunityPanel';
+import { CertificateViewerPage } from './features/certificates/CertificateViewerPage';
+import { AdminConsolePage } from './features/admin/AdminConsolePage';
 import { useAuthStore } from './stores/authStore';
 
 function renderWithProviders(ui: React.ReactElement, initialRoute = '/') {
@@ -157,5 +159,27 @@ describe('LearnSphere Frontend Views & Interactive Workflows', () => {
 
     fireEvent.click(getByText(/Announcements \(0\)/i));
     expect(getByText('Broadcast Course Announcement')).toBeInTheDocument();
+  });
+
+  it('renders CertificateViewerPage with verification code input', () => {
+    const { getByText, getByLabelText } = renderWithProviders(
+      <CertificateViewerPage />,
+      '/certificates/verify'
+    );
+    expect(
+      getByText(/Certificate Verification & Viewer/i)
+    ).toBeInTheDocument();
+    expect(
+      getByLabelText('Certificate Verification Code')
+    ).toBeInTheDocument();
+    expect(getByText('Verify Code')).toBeInTheDocument();
+  });
+
+  it('renders AdminConsolePage with governance tabs', () => {
+    const { getByText } = renderWithProviders(<AdminConsolePage />, '/admin');
+    expect(getByText('Admin Governance Console')).toBeInTheDocument();
+    expect(getByText('Platform Analytics')).toBeInTheDocument();
+    expect(getByText('Users')).toBeInTheDocument();
+    expect(getByText('Audit Logs & Settings')).toBeInTheDocument();
   });
 });

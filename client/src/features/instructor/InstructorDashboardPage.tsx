@@ -2,6 +2,15 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import {
   Plus,
   BookOpen,
   Users,
@@ -17,6 +26,7 @@ import {
 import { apiClient, extractErrorMessage } from '@/lib/api';
 import { formatCurrency, formatDuration } from '@/lib/utils';
 import { CategoryItem, CourseItem, CourseLevel, CourseStatus } from '@/types/course';
+import { InstructorAnalyticsPayload } from '@/types/phase7';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -80,6 +90,14 @@ export function InstructorDashboardPage(): React.ReactElement {
     queryFn: async () => {
       const res = await apiClient.get('/courses/instructor/my-courses');
       return res.data.data.courses;
+    },
+  });
+
+  const { data: instructorAnalytics } = useQuery<InstructorAnalyticsPayload>({
+    queryKey: ['instructor-analytics'],
+    queryFn: async () => {
+      const res = await apiClient.get('/analytics/instructor');
+      return res.data.data;
     },
   });
 
@@ -255,6 +273,46 @@ export function InstructorDashboardPage(): React.ReactElement {
           </CardHeader>
         </Card>
       </div>
+
+      {instructorAnalytics && instructorAnalytics.charts.coursePerformance.length > 0 ? (
+        <Card>
+          <CardHeader className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
+            <div>
+              <CardTitle className="text-base">
+                Course Engagement &amp; Assessment Analytics
+              </CardTitle>
+              <CardDescription>
+                Completion Rate: {instructorAnalytics.summary.completionRate}% •
+                Quiz Pass Rate: {instructorAnalytics.summary.quizPassRate}% •
+                Pending Assignments:{' '}
+                {instructorAnalytics.submissionStats.pendingReview}
+              </CardDescription>
+            </div>
+          </CardHeader>
+          <CardContent className="h-60">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={instructorAnalytics.charts.coursePerformance}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                <Tooltip />
+                <Bar
+                  dataKey="enrollments"
+                  name="Enrollments"
+                  fill="#4f46e5"
+                  radius={[4, 4, 0, 0]}
+                />
+                <Bar
+                  dataKey="avgProgress"
+                  name="Avg Progress (%)"
+                  fill="#10b981"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      ) : null}
 
       {isLoading ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

@@ -2,16 +2,27 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from 'recharts';
+import {
   BookOpen,
   PlayCircle,
   CheckCircle2,
   Award,
   Clock,
   ArrowRight,
+  ExternalLink,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { useAuthStore } from '@/stores/authStore';
 import { EnrollmentItem } from '@/types/learning';
+import { CertificateItem, StudentAnalyticsPayload } from '@/types/phase7';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,6 +44,22 @@ export function StudentDashboardPage(): React.ReactElement {
     queryFn: async () => {
       const res = await apiClient.get('/enrollments/my-enrollments');
       return res.data.data.enrollments;
+    },
+  });
+
+  const { data: studentAnalytics } = useQuery<StudentAnalyticsPayload>({
+    queryKey: ['student-analytics'],
+    queryFn: async () => {
+      const res = await apiClient.get('/analytics/student');
+      return res.data.data;
+    },
+  });
+
+  const { data: certificates = [] } = useQuery<CertificateItem[]>({
+    queryKey: ['my-certificates'],
+    queryFn: async () => {
+      const res = await apiClient.get('/certificates/my-certificates');
+      return res.data.data.certificates;
     },
   });
 
@@ -104,6 +131,93 @@ export function StudentDashboardPage(): React.ReactElement {
           </CardHeader>
         </Card>
       </div>
+
+      {/* Student Analytics & Earned Certificates */}
+      {(studentAnalytics || certificates.length > 0) && (
+        <div className="grid gap-6 lg:grid-cols-2">
+          {studentAnalytics ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">
+                  Learning Activity &amp; Quiz Performance
+                </CardTitle>
+                <CardDescription>
+                  {studentAnalytics.summary.completedLessonsCount} lessons
+                  completed • Avg Quiz Score:{' '}
+                  {studentAnalytics.summary.averageQuizScore}%
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="h-56">
+                {studentAnalytics.charts.courseProgress.length === 0 ? (
+                  <p className="py-12 text-center text-xs text-slate-400">
+                    Enroll in a course to track progress metrics.
+                  </p>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={studentAnalytics.charts.courseProgress}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                      <YAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
+                      <Tooltip />
+                      <Bar
+                        dataKey="progress"
+                        fill="#4f46e5"
+                        radius={[4, 4, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                )}
+              </CardContent>
+            </Card>
+          ) : null}
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-base">
+                  Earned Certificates ({certificates.length})
+                </CardTitle>
+                <CardDescription>
+                  Verified credentials awarded upon 100% completion
+                </CardDescription>
+              </div>
+              <Link to="/certificates/verify">
+                <Button variant="outline" size="sm">
+                  Verify Code
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent className="space-y-2.5">
+              {certificates.length === 0 ? (
+                <p className="py-8 text-center text-xs text-slate-500">
+                  Complete 100% of any enrolled course to earn your certificate.
+                </p>
+              ) : (
+                certificates.map((cert) => (
+                  <div
+                    key={cert._id}
+                    className="flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50/70 px-3.5 py-2.5"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {cert.courseTitleSnapshot}
+                      </p>
+                      <p className="text-xs font-mono text-slate-500">
+                        {cert.certificateCode}
+                      </p>
+                    </div>
+                    <Link to={`/certificates/verify/${cert.certificateCode}`}>
+                      <Button size="sm" variant="outline">
+                        View <ExternalLink className="h-3.5 w-3.5" />
+                      </Button>
+                    </Link>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200">
