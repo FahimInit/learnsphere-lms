@@ -65,3 +65,13 @@ This log records architectural milestones, implementation decisions, and verific
   - Verified with 21 passing backend integration tests across 6 suites (`engagement.test.ts` + prior suites) and 10 passing frontend component tests.
   - Built `NotificationBell.tsx`, `NotificationsPage.tsx`, `useNotificationsSocket.ts`, and `CourseCommunityPanel.tsx` (integrated into `CoursePlayerPage.tsx` and `CourseEditorPage.tsx`).
 - **Status**: Completed.
+
+## Entry 8 — Phase 7: Certificates, Analytics & Admin Governance
+- **Summary**:
+  - Created `Certificate` (`certificateCode`, snapshot fields, compound unique `{ student: 1, course: 1 }`), `AuditLog`, and `PlatformSettings` Mongoose models.
+  - Implemented `/api/v1/certificates` with automatic certificate issuance inside `progressService` upon 100% completion, idempotent `/claim`, `/my-certificates`, and public `/verify/:code` verification.
+  - Implemented `/api/v1/admin` governance endpoints (user directory, account suspension/activation, role assignment, pending course moderation, reported content moderation, platform settings, and immutable audit trail).
+  - Implemented `/api/v1/analytics` aggregation pipelines for Student, Instructor, and Admin dashboards.
+  - Verified with 23 passing backend integration tests across 7 suites (`phase7.test.ts` + all prior suites) and 12 passing frontend component tests.
+  - Built `CertificateViewerPage.tsx`, `AdminConsolePage.tsx` (Recharts analytics + full moderation console), and integrated analytics charts and certificate links into `StudentDashboardPage.tsx`, `InstructorDashboardPage.tsx`, and `CoursePlayerPage.tsx`.
+- **Status**: Completed.

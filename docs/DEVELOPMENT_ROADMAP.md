@@ -53,11 +53,11 @@
 - [x] Notification service with Socket.IO real-time push delivery
 - [x] Engagement integration tests & Frontend Discussion Forum, Announcements, and Notification Center
 
-## Phase 7 — Certificates & Analytics
-- [ ] `Certificate` and `AuditLog` models
-- [ ] Server-side certificate eligibility check, issuance, and public verification endpoint
-- [ ] Student, Instructor, and Admin analytics aggregation pipelines
-- [ ] Frontend Certificate Viewer, Public Verification Page, and Recharts Analytics Dashboards + Admin Governance UI
+## Phase 7 — Certificates & Analytics (Completed)
+- [x] `Certificate` and `AuditLog` models
+- [x] Server-side certificate eligibility check, issuance, and public verification endpoint
+- [x] Student, Instructor, and Admin analytics aggregation pipelines
+- [x] Frontend Certificate Viewer, Public Verification Page, and Recharts Analytics Dashboards + Admin Governance UI
 
 ## Phase 8 — Quality, Seed Data & Production Readiness
 - [ ] Comprehensive realistic development database seeder (`npm run seed`)
