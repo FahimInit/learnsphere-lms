@@ -21,3 +21,15 @@ export function formatDuration(minutes: number): string {
   if (mins === 0) return `${hrs}h`;
   return `${hrs}h ${mins}m`;
 }
+
+export function sanitizeSafeUrl(url?: string): string {
+  if (!url) return '#';
+  const trimmed = url.trim();
+  if (
+    trimmed.startsWith('/uploads/') ||
+    /^https?:\/\//i.test(trimmed)
+  ) {
+    return trimmed;
+  }
+  return '#';
+}

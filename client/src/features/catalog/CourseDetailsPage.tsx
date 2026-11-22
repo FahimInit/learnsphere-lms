@@ -60,7 +60,16 @@ export function CourseDetailsPage(): React.ReactElement {
 
   const enrollMutation = useMutation({
     mutationFn: async (courseId: string) => {
-      const res = await apiClient.post(`/enrollments/courses/${courseId}`);
+      let paymentReceiptToken: string | undefined;
+      if (data?.course && data.course.price > 0) {
+        const checkoutRes = await apiClient.post(
+          `/enrollments/courses/${courseId}/checkout`
+        );
+        paymentReceiptToken = checkoutRes.data.data.paymentReceiptToken;
+      }
+      const res = await apiClient.post(`/enrollments/courses/${courseId}`, {
+        ...(paymentReceiptToken ? { paymentReceiptToken } : {}),
+      });
       return res.data.data.enrollment as EnrollmentItem;
     },
     onSuccess: (_enrollment, courseId) => {

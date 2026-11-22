@@ -80,6 +80,7 @@ export function StudentAssessmentsPanel({
     questions: QuestionItem[];
     attemptsUsed: number;
     remainingAttempts: number;
+    attemptToken?: string;
   }>({
     queryKey: ['quiz-detail', selectedQuizId],
     queryFn: async () => {
@@ -149,6 +150,7 @@ export function StudentAssessmentsPanel({
       }));
       const res = await apiClient.post(`/quizzes/${selectedQuizId}/attempts`, {
         answers: formattedAnswers,
+        attemptToken: quizDetail.attemptToken,
         startedAt: quizStartedAt || new Date().toISOString(),
       });
       return res.data.data as {

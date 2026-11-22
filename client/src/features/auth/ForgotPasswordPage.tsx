@@ -26,7 +26,6 @@ export function ForgotPasswordPage(): React.ReactElement {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [devResetToken, setDevResetToken] = useState<string | null>(null);
 
   const {
     register,
@@ -41,16 +40,12 @@ export function ForgotPasswordPage(): React.ReactElement {
     setIsSubmitting(true);
     setServerError(null);
     setSuccessMessage(null);
-    setDevResetToken(null);
     try {
       const res = await apiClient.post('/auth/forgot-password', values);
       setSuccessMessage(
         res.data?.message ||
           'If an account exists for that email, a password reset link has been sent.'
       );
-      if (res.data?.data?.resetToken) {
-        setDevResetToken(res.data.data.resetToken);
-      }
     } catch (err) {
       setServerError(extractErrorMessage(err));
     } finally {
@@ -88,20 +83,6 @@ export function ForgotPasswordPage(): React.ReactElement {
                 <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
                 <span>{successMessage}</span>
               </div>
-              {devResetToken ? (
-                <div className="rounded border border-emerald-300 bg-white p-2.5 text-xs text-slate-700">
-                  <p className="font-semibold text-slate-900">
-                    Development Email Inspector:
-                  </p>
-                  <p className="mt-1 break-all font-mono">{devResetToken}</p>
-                  <Link
-                    to={`/reset-password?token=${encodeURIComponent(devResetToken)}`}
-                    className="mt-2 inline-block font-semibold text-indigo-600 hover:underline"
-                  >
-                    Continue to Reset Password →
-                  </Link>
-                </div>
-              ) : null}
             </div>
           ) : null}
 

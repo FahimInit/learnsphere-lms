@@ -33,6 +33,7 @@ export function LoginPage(): React.ReactElement {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -118,6 +119,32 @@ export function LoginPage(): React.ReactElement {
               Sign In
             </Button>
           </form>
+
+          <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 space-y-2.5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
+              Demo Accounts (Password: <code className="font-mono text-indigo-600">Password123</code>)
+            </p>
+            <div className="grid gap-2">
+              {[
+                { label: 'Student', email: 'alex.rivera@learnsphere.dev' },
+                { label: 'Instructor', email: 'sarah.chen@learnsphere.dev' },
+                { label: 'Admin', email: 'admin@learnsphere.dev' },
+              ].map((demo) => (
+                <button
+                  key={demo.email}
+                  type="button"
+                  onClick={() => {
+                    setValue('email', demo.email, { shouldValidate: true });
+                    setValue('password', 'Password123', { shouldValidate: true });
+                  }}
+                  className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-left text-xs hover:border-indigo-400 hover:bg-indigo-50/40 transition-colors"
+                >
+                  <span className="font-semibold text-slate-800">{demo.label}</span>
+                  <span className="font-mono text-slate-500">{demo.email}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </CardContent>
 
         <CardFooter className="justify-center border-t border-slate-100 pt-4 text-sm text-slate-600">

@@ -16,6 +16,7 @@ import {
   Award,
 } from 'lucide-react';
 import { apiClient, extractErrorMessage } from '@/lib/api';
+import { sanitizeSafeUrl } from '@/lib/utils';
 import { LessonItem, LessonType } from '@/types/course';
 import { LearningWorkspacePayload } from '@/types/learning';
 import { Button } from '@/components/ui/button';
@@ -394,8 +395,9 @@ export function CoursePlayerPage(): React.ReactElement {
                   {activeLesson.type === 'embed' && activeLesson.videoUrl ? (
                     <div className="aspect-video w-full overflow-hidden rounded-xl border border-slate-200 bg-slate-900">
                       <iframe
-                        src={activeLesson.videoUrl}
+                        src={sanitizeSafeUrl(activeLesson.videoUrl)}
                         title={activeLesson.title}
+                        sandbox="allow-scripts allow-same-origin allow-presentation"
                         className="h-full w-full border-0"
                         allowFullScreen
                       />
@@ -426,7 +428,7 @@ export function CoursePlayerPage(): React.ReactElement {
                         {activeLesson.resources.map((resItem, idx) => (
                           <a
                             key={idx}
-                            href={resItem.fileUrl}
+                            href={sanitizeSafeUrl(resItem.fileUrl)}
                             target="_blank"
                             rel="noreferrer"
                             download

@@ -45,11 +45,17 @@ describe('LearnSphere Frontend Views & Interactive Workflows', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders LoginPage with email and password inputs', () => {
+  it('renders LoginPage with email, password inputs, and clickable demo credentials', () => {
     const { getByText, getByLabelText } = renderWithProviders(<LoginPage />, '/login');
     expect(getByText('Welcome back')).toBeInTheDocument();
-    expect(getByLabelText('Email Address')).toBeInTheDocument();
-    expect(getByLabelText('Password')).toBeInTheDocument();
+    const emailInput = getByLabelText('Email Address') as HTMLInputElement;
+    const passwordInput = getByLabelText('Password') as HTMLInputElement;
+    expect(emailInput).toBeInTheDocument();
+    expect(passwordInput).toBeInTheDocument();
+
+    fireEvent.click(getByText('admin@learnsphere.dev'));
+    expect(emailInput.value).toBe('admin@learnsphere.dev');
+    expect(passwordInput.value).toBe('Password123');
   });
 
   it('renders RegisterPage and allows toggling between Student and Instructor roles', () => {
