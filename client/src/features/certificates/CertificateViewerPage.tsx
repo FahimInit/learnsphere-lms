@@ -11,6 +11,7 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 import { apiClient, extractErrorMessage } from '@/lib/api';
+import { useAuthStore } from '@/stores/authStore';
 import { CertificateItem } from '@/types/phase7';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ import {
 export function CertificateViewerPage(): React.ReactElement {
   const { code } = useParams<{ code?: string }>();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [lookupInput, setLookupInput] = useState(code || '');
 
   const { data, isLoading, error } = useQuery<{
@@ -53,11 +55,11 @@ export function CertificateViewerPage(): React.ReactElement {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center print:hidden">
         <div>
           <Link
-            to="/dashboard"
+            to={user ? '/dashboard' : '/courses'}
             className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            Back to Dashboard
+            {user ? 'Back to Dashboard' : 'Browse Courses'}
           </Link>
           <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
             Certificate Verification &amp; Viewer

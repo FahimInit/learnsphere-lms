@@ -18,11 +18,20 @@ import { Announcement } from '../modules/discussions/announcement.model';
 import { Notification } from '../modules/notifications/notification.model';
 import { logger } from '../utils/logger';
 
+const DEFAULT_SAMPLE_VIDEO_URL =
+  'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4';
+
 /**
  * Seeds demo users, categories, courses, quizzes, and notifications if the
  * database does not already contain the demo admin account.
  */
 export async function seedData(): Promise<void> {
+  // Replace deprecated commondatastorage sample URLs on existing seeded lessons
+  await Lesson.updateMany(
+    { videoUrl: /commondatastorage\.googleapis\.com\/gtv-videos-bucket/i },
+    { $set: { videoUrl: DEFAULT_SAMPLE_VIDEO_URL } }
+  );
+
   const existingAdmin = await User.findOne({ email: 'admin@learnsphere.dev' });
   if (existingAdmin) {
     logger.info('Database already contains LearnSphere seed data. Skipping.');
@@ -136,8 +145,7 @@ export async function seedData(): Promise<void> {
       title: 'Architectural Overview & Modular Monolith Patterns',
       slug: 'architectural-overview-modular-monolith',
       type: 'video',
-      videoUrl:
-        'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+      videoUrl: DEFAULT_SAMPLE_VIDEO_URL,
       videoDurationSeconds: 900,
       content:
         'In this lesson we compare layered modular monoliths against premature microservices and establish clear domain boundaries.',

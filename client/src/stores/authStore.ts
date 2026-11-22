@@ -42,11 +42,36 @@ interface AuthState {
   hasRole: (...roles: UserRole[]) => boolean;
 }
 
+const SESSION_HINT_KEY = 'learnsphere_has_session';
+
+function hasSessionHint(): boolean {
+  try {
+    return typeof window !== 'undefined' && window.localStorage.getItem(SESSION_HINT_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+function setSessionHint(active: boolean): void {
+  try {
+    if (typeof window === 'undefined') return;
+    if (active) {
+      window.localStorage.setItem(SESSION_HINT_KEY, '1');
+    } else {
+      window.localStorage.removeItem(SESSION_HINT_KEY);
+    }
+  } catch {
+    // ignore storage access errors in restricted environments
+  }
+}
+
 export const useAuthStore = create<AuthState>((set, get) => {
   registerSessionRefreshListener((newToken) => {
     if (!newToken) {
+      setSessionHint(false);
       set({ user: null, accessToken: null });
     } else {
+      setSessionHint(true);
       set({ accessToken: newToken });
     }
   });
@@ -58,24 +83,32 @@ export const useAuthStore = create<AuthState>((set, get) => {
     isLoading: false,
 
     setSession: (user, accessToken) => {
+      setSessionHint(true);
       setAccessToken(accessToken);
       set({ user, accessToken, isInitialized: true });
     },
 
     clearSession: () => {
+      setSessionHint(false);
       setAccessToken(null);
       set({ user: null, accessToken: null, isInitialized: true });
     },
 
     initializeAuth: async () => {
       if (get().isInitialized) return;
+      if (!hasSessionHint()) {
+        set({ user: null, accessToken: null, isInitialized: true, isLoading: false });
+        return;
+      }
       set({ isLoading: true });
       try {
         const res = await apiClient.post('/auth/refresh');
         const { user, accessToken } = res.data.data;
+        setSessionHint(true);
         setAccessToken(accessToken);
         set({ user, accessToken, isInitialized: true, isLoading: false });
       } catch {
+        setSessionHint(false);
         setAccessToken(null);
         set({
           user: null,
@@ -91,6 +124,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
       try {
         const res = await apiClient.post('/auth/login', payload);
         const { user, accessToken } = res.data.data;
+        setSessionHint(true);
         setAccessToken(accessToken);
         set({ user, accessToken, isLoading: false, isInitialized: true });
         return user;
@@ -105,6 +139,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
       try {
         const res = await apiClient.post('/auth/register', payload);
         const { user, accessToken } = res.data.data;
+        setSessionHint(true);
         setAccessToken(accessToken);
         set({ user, accessToken, isLoading: false, isInitialized: true });
         return user;
@@ -118,6 +153,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
       try {
         await apiClient.post('/auth/logout');
       } finally {
+        setSessionHint(false);
         setAccessToken(null);
         set({ user: null, accessToken: null });
       }

@@ -179,7 +179,7 @@ export function CourseCatalogPage(): React.ReactElement {
               setSelectedLevel(e.target.value);
               setPage(1);
             }}
-            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium leading-normal text-slate-700 focus:border-indigo-500 focus:outline-none"
           >
             <option value="">All Levels</option>
             <option value="beginner">Beginner</option>
@@ -194,7 +194,7 @@ export function CourseCatalogPage(): React.ReactElement {
               setPriceType(e.target.value as 'all' | 'free' | 'paid');
               setPage(1);
             }}
-            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium leading-normal text-slate-700 focus:border-indigo-500 focus:outline-none"
           >
             <option value="all">All Prices</option>
             <option value="free">Free Only</option>
@@ -227,7 +227,7 @@ export function CourseCatalogPage(): React.ReactElement {
                   | 'price_desc'
               )
             }
-            className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs font-medium text-slate-700 focus:border-indigo-500 focus:outline-none"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-medium leading-normal text-slate-700 focus:border-indigo-500 focus:outline-none"
           >
             <option value="newest">Newest Published</option>
             <option value="popular">Most Popular</option>

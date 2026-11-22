@@ -121,8 +121,12 @@ export function LoginPage(): React.ReactElement {
           </form>
 
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 space-y-2.5">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-              Demo Accounts (Password: <code className="font-mono text-indigo-600">Password123</code>)
+            <p className="text-xs font-semibold text-slate-600">
+              <span className="uppercase tracking-wider">Demo Accounts</span>{' '}
+              <span className="font-normal text-slate-500">
+                (Password:{' '}
+                <code className="font-mono font-semibold text-indigo-600">Password123</code>)
+              </span>
             </p>
             <div className="grid gap-2">
               {[

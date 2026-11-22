@@ -12,7 +12,7 @@ let ioInstance: SocketIOServer | null = null;
 export function initializeSocketServer(httpServer: HttpServer): SocketIOServer {
   const io = new SocketIOServer(httpServer, {
     cors: {
-      origin: env.CLIENT_URL,
+      origin: env.CLIENT_URL.split(',').map((origin) => origin.trim()),
       credentials: true,
     },
   });

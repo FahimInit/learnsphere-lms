@@ -871,7 +871,7 @@ export function CourseEditorPage(): React.ReactElement {
                       ? 'Video Stream / MP4 URL'
                       : 'Embed Source URL'
                   }
-                  placeholder="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                  placeholder="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
                   value={lessonVideoUrl}
                   onChange={(e) => setLessonVideoUrl(e.target.value)}
                 />

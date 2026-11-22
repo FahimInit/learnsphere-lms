@@ -21,6 +21,7 @@ import { LessonItem, LessonType } from '@/types/course';
 import { LearningWorkspacePayload } from '@/types/learning';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { MarkdownContent } from '@/components/ui/MarkdownContent';
 import { StudentAssessmentsPanel } from '@/features/assessments/StudentAssessmentsPanel';
 import { CourseCommunityPanel } from '@/features/discussions/CourseCommunityPanel';
 import {
@@ -382,7 +383,7 @@ export function CoursePlayerPage(): React.ReactElement {
                         controls
                         src={
                           activeLesson.videoUrl ||
-                          'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                          'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4'
                         }
                         className="aspect-video w-full"
                       >
@@ -410,9 +411,7 @@ export function CoursePlayerPage(): React.ReactElement {
                       <h3 className="mb-3 text-sm font-bold uppercase tracking-wider text-slate-500">
                         Lesson Study Notes & Transcript
                       </h3>
-                      <div className="whitespace-pre-line text-sm leading-relaxed text-slate-800">
-                        {activeLesson.content}
-                      </div>
+                      <MarkdownContent content={activeLesson.content} />
                     </div>
                   ) : null}
 
