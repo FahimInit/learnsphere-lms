@@ -12,6 +12,7 @@ import {
 import { useAuthStore } from '@/stores/authStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { NotificationBell } from '@/features/notifications/NotificationBell';
 
 export function Navbar(): React.ReactElement {
   const { user, logout } = useAuthStore();
@@ -79,6 +80,7 @@ export function Navbar(): React.ReactElement {
         <div className="flex items-center gap-3">
           {user ? (
             <>
+              <NotificationBell />
               <Badge
                 variant={
                   user.role === 'admin'
