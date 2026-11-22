@@ -279,7 +279,7 @@ export function StudentDashboardPage(): React.ReactElement {
             return (
               <Card
                 key={enrollment._id}
-                className="flex flex-col justify-between transition-shadow hover:shadow-md"
+                className="flex min-w-0 flex-col justify-between overflow-hidden transition-shadow hover:shadow-md"
               >
                 <CardHeader className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -331,9 +331,9 @@ export function StudentDashboardPage(): React.ReactElement {
                   </div>
 
                   {enrollment.lastAccessedLesson ? (
-                    <div className="flex items-center gap-2 rounded-lg bg-slate-50 p-2.5 text-xs text-slate-600">
+                    <div className="flex min-w-0 items-center gap-2 rounded-lg bg-slate-50 p-2.5 text-xs text-slate-600">
                       <Clock className="h-3.5 w-3.5 shrink-0 text-indigo-600" />
-                      <span className="truncate">
+                      <span className="min-w-0 truncate">
                         Resume: <strong>{enrollment.lastAccessedLesson.title}</strong>
                       </span>
                     </div>
