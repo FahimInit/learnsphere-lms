@@ -3,10 +3,15 @@ import { app } from './app';
 import { env } from './config/env';
 import { connectDatabase, disconnectDatabase } from './config/db';
 import { initializeSocketServer } from './infrastructure/socket/socket.service';
+import { seedData } from './scripts/seed';
 import { logger } from './utils/logger';
 
 async function bootstrap(): Promise<void> {
   await connectDatabase();
+
+  if (process.env.AUTO_SEED === 'true') {
+    await seedData();
+  }
 
   const httpServer = http.createServer(app);
   initializeSocketServer(httpServer);

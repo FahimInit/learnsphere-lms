@@ -18,13 +18,14 @@ import { Announcement } from '../modules/discussions/announcement.model';
 import { Notification } from '../modules/notifications/notification.model';
 import { logger } from '../utils/logger';
 
-async function seedDatabase(): Promise<void> {
-  await connectDatabase();
-
+/**
+ * Seeds demo users, categories, courses, quizzes, and notifications if the
+ * database does not already contain the demo admin account.
+ */
+export async function seedData(): Promise<void> {
   const existingAdmin = await User.findOne({ email: 'admin@learnsphere.dev' });
   if (existingAdmin) {
     logger.info('Database already contains LearnSphere seed data. Skipping.');
-    await disconnectDatabase();
     return;
   }
 
@@ -468,12 +469,22 @@ async function seedDatabase(): Promise<void> {
   ]);
 
   logger.info('LearnSphere development database seeded successfully.');
-  await disconnectDatabase();
 }
 
-seedDatabase().catch((err) => {
-  logger.error('Seed script failed', {
-    error: err instanceof Error ? err.message : String(err),
+async function runSeed(): Promise<void> {
+  await connectDatabase();
+  try {
+    await seedData();
+  } finally {
+    await disconnectDatabase();
+  }
+}
+
+if (require.main === module) {
+  runSeed().catch((err) => {
+    logger.error('Seed script failed', {
+      error: err instanceof Error ? err.message : String(err),
+    });
+    process.exit(1);
   });
-  process.exit(1);
-});
+}
