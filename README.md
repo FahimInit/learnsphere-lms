@@ -81,6 +81,11 @@ LearnSphere is structured as an **npm Workspaces Monorepo**:
    ```bash
    npm run seed
    ```
+   Seeded demo accounts (password for all: `Password123`):
+   - **Admin**: `admin@learnsphere.dev`
+   - **Instructor**: `sarah.chen@learnsphere.dev` / `marcus.reed@learnsphere.dev`
+   - **Student**: `alex.rivera@learnsphere.dev` / `priya.patel@learnsphere.dev`
+   - **Sample Certificate Code**: `LS-2026-DEMO1001`
 4. **Run Backend & Frontend in Development**:
    ```bash
    # Terminal 1: Start Backend API (http://localhost:5000)

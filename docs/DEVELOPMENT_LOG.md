@@ -75,3 +75,10 @@ This log records architectural milestones, implementation decisions, and verific
   - Verified with 23 passing backend integration tests across 7 suites (`phase7.test.ts` + all prior suites) and 12 passing frontend component tests.
   - Built `CertificateViewerPage.tsx`, `AdminConsolePage.tsx` (Recharts analytics + full moderation console), and integrated analytics charts and certificate links into `StudentDashboardPage.tsx`, `InstructorDashboardPage.tsx`, and `CoursePlayerPage.tsx`.
 - **Status**: Completed.
+
+## Entry 9 — Phase 8: Seed Data, OpenAPI Sync & Production Verification
+- **Summary**:
+  - Built idempotent `server/src/scripts/seed.ts` (`npm run seed`) populating Admin, Instructor, and Student accounts, categories, published/pending courses, sections/lessons, quizzes, assignments, enrollments, reviews, discussions, announcements, notifications, and sample certificate `LS-2026-DEMO1001`.
+  - Updated `server/src/config/swagger.ts` with OpenAPI 3.0 endpoint definitions across all v1 domains.
+  - Updated `README.md` with seeded demo credentials and verified all TypeScript checks, production builds, and integration/unit test suites across both workspaces.
+- **Status**: Completed.
