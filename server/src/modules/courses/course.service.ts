@@ -586,7 +586,7 @@ export class CourseService {
       status: 'published',
     };
 
-    if (query.q && query.q.trim()) {
+    if (typeof query.q === 'string' && query.q.trim()) {
       const escaped = query.q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       const regex = new RegExp(escaped, 'i');
       filter.$or = [
@@ -596,7 +596,7 @@ export class CourseService {
       ];
     }
 
-    if (query.category && query.category.trim()) {
+    if (typeof query.category === 'string' && query.category.trim()) {
       if (mongoose.Types.ObjectId.isValid(query.category)) {
         filter.category = new mongoose.Types.ObjectId(query.category);
       } else {
@@ -671,7 +671,7 @@ export class CourseService {
 
     const course = await Course.findOne(query)
       .populate('category', 'name slug icon')
-      .populate('instructor', 'name email headline bio avatarUrl');
+      .populate('instructor', 'name headline bio avatarUrl');
 
     if (!course) {
       throw AppError.notFound('Course not found');

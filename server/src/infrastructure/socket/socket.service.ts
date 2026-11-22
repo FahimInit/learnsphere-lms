@@ -1,8 +1,11 @@
 import { Server as HttpServer } from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import { env } from '../../config/env';
 import { logger } from '../../utils/logger';
+import { Enrollment } from '../../modules/enrollments/enrollment.model';
+import { Course } from '../../modules/courses/course.model';
 
 let ioInstance: SocketIOServer | null = null;
 
@@ -20,30 +23,59 @@ export function initializeSocketServer(httpServer: HttpServer): SocketIOServer {
       socket.handshake.headers?.authorization?.replace('Bearer ', '');
 
     if (!token) {
-      return next();
+      return next(new Error('Authentication required for real-time connection'));
     }
 
     try {
-      const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as { sub?: string };
-      if (decoded.sub) {
-        socket.data.userId = decoded.sub;
+      const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET) as {
+        sub?: string;
+        role?: string;
+      };
+      if (!decoded.sub) {
+        return next(new Error('Invalid access token'));
       }
+      socket.data.userId = decoded.sub;
+      socket.data.role = decoded.role;
+      return next();
     } catch {
-      // Allow connection even if unauthenticated; user room join requires valid userId
+      return next(new Error('Invalid or expired access token'));
     }
-    return next();
   });
 
   io.on('connection', (socket: Socket) => {
     const userId = socket.data.userId as string | undefined;
+    const role = socket.data.role as string | undefined;
+
     if (userId) {
       socket.join(`user:${userId}`);
       logger.debug('Socket joined personal room', { userId, socketId: socket.id });
     }
 
-    socket.on('join:course', (courseId: string) => {
-      if (typeof courseId === 'string' && courseId.trim()) {
-        socket.join(`course:${courseId}`);
+    socket.on('join:course', async (courseId: string) => {
+      if (!userId || typeof courseId !== 'string' || !mongoose.Types.ObjectId.isValid(courseId)) {
+        return;
+      }
+
+      try {
+        if (role === 'admin') {
+          socket.join(`course:${courseId}`);
+          return;
+        }
+
+        const [enrollment, course] = await Promise.all([
+          Enrollment.findOne({
+            student: userId,
+            course: courseId,
+            status: { $in: ['active', 'completed'] },
+          }).select('_id'),
+          Course.findOne({ _id: courseId, instructor: userId }).select('_id'),
+        ]);
+
+        if (enrollment || course) {
+          socket.join(`course:${courseId}`);
+        }
+      } catch {
+        // Ignore authorization lookup failures on socket join
       }
     });
 

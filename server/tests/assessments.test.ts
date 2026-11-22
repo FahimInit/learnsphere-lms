@@ -222,6 +222,8 @@ describe('Assessment System: Quizzes, Auto-Grading, Assignments & Grading API', 
       .set('Authorization', `Bearer ${studentToken}`);
     expect(studentFetch.status).toBe(200);
     expect(studentFetch.body.data.questions).toHaveLength(3);
+    const attemptToken = studentFetch.body.data.attemptToken as string;
+    expect(attemptToken).toBeTypeOf('string');
     for (const q of studentFetch.body.data.questions) {
       expect(q.correctOptionIds).toBeUndefined();
       expect(q.explanation).toBeUndefined();
@@ -232,6 +234,7 @@ describe('Assessment System: Quizzes, Auto-Grading, Assignments & Grading API', 
       .post(`/api/v1/quizzes/${quizId}/attempts`)
       .set('Authorization', `Bearer ${studentToken}`)
       .send({
+        attemptToken,
         answers: [
           { questionId: q1Id, selectedOptionIds: ['b'] },
           { questionId: q2Id, selectedOptionIds: ['get'] }, // incomplete multi_select
@@ -248,6 +251,7 @@ describe('Assessment System: Quizzes, Auto-Grading, Assignments & Grading API', 
       .post(`/api/v1/quizzes/${quizId}/attempts`)
       .set('Authorization', `Bearer ${studentToken}`)
       .send({
+        attemptToken,
         answers: [
           { questionId: q1Id, selectedOptionIds: ['b'] },
           { questionId: q2Id, selectedOptionIds: ['put', 'get'] }, // order-independent

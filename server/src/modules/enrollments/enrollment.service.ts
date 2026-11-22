@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import { env } from '../../config/env';
 import {
   Enrollment,
   IEnrollmentDocument,
@@ -14,9 +16,45 @@ import { AppError } from '../../utils/AppError';
 import { AuthenticatedUser } from '../../types/express';
 
 export class EnrollmentService {
-  async enrollInCourse(
+  async createCheckoutReceipt(
     courseId: string,
     actor: AuthenticatedUser
+  ): Promise<{ paymentReceiptToken: string; amount: number; currency: string }> {
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      throw AppError.badRequest('Invalid course ID');
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      throw AppError.notFound('Course not found');
+    }
+
+    if (course.status !== 'published') {
+      throw AppError.badRequest('Cannot purchase a course that is not published');
+    }
+
+    const paymentReceiptToken = jwt.sign(
+      {
+        type: 'course_checkout',
+        courseId: course._id.toString(),
+        studentId: actor.id,
+        amount: course.price,
+      },
+      env.JWT_ACCESS_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    return {
+      paymentReceiptToken,
+      amount: course.price,
+      currency: 'USD',
+    };
+  }
+
+  async enrollInCourse(
+    courseId: string,
+    actor: AuthenticatedUser,
+    paymentReceiptToken?: string
   ): Promise<IEnrollmentDocument> {
     if (!mongoose.Types.ObjectId.isValid(courseId)) {
       throw AppError.badRequest('Invalid course ID');
@@ -29,6 +67,34 @@ export class EnrollmentService {
 
     if (course.status !== 'published') {
       throw AppError.badRequest('Cannot enroll in a course that is not published');
+    }
+
+    if (course.price > 0) {
+      if (!paymentReceiptToken) {
+        throw AppError.badRequest(
+          'Payment checkout verification is required to enroll in a paid course'
+        );
+      }
+      try {
+        const decoded = jwt.verify(
+          paymentReceiptToken,
+          env.JWT_ACCESS_SECRET
+        ) as {
+          type?: string;
+          courseId?: string;
+          studentId?: string;
+        };
+        if (
+          decoded.type !== 'course_checkout' ||
+          decoded.courseId !== course._id.toString() ||
+          decoded.studentId !== actor.id
+        ) {
+          throw AppError.badRequest('Invalid payment receipt for this course');
+        }
+      } catch (err) {
+        if (err instanceof AppError) throw err;
+        throw AppError.badRequest('Invalid or expired payment receipt token');
+      }
     }
 
     const existing = await Enrollment.findOne({

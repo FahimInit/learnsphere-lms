@@ -6,11 +6,21 @@ import { sendSuccess, sendCreated } from '../../utils/apiResponse';
 import { AppError } from '../../utils/AppError';
 
 export class EnrollmentController {
+  createCheckout = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) throw AppError.unauthorized();
+    const receipt = await enrollmentService.createCheckoutReceipt(
+      req.params.courseId,
+      req.user
+    );
+    return sendSuccess(res, receipt, 'Checkout receipt issued');
+  });
+
   enroll = asyncHandler(async (req: Request, res: Response) => {
     if (!req.user) throw AppError.unauthorized();
     const enrollment = await enrollmentService.enrollInCourse(
       req.params.courseId,
-      req.user
+      req.user,
+      req.body?.paymentReceiptToken
     );
     return sendCreated(
       res,

@@ -129,6 +129,7 @@ export const submitQuizAttemptSchema = z.object({
         selectedOptionIds: z.array(z.string()).default([]),
       })
     ),
+    attemptToken: z.string().min(10).optional(),
     startedAt: z.string().datetime().optional(),
   }),
 });

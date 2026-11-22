@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
 import request from 'supertest';
 import { app } from '../src/app';
 import { User } from '../src/modules/users/user.model';
+import { consoleEmailProvider } from '../src/infrastructure/email/email.service';
 import { setupTestDB, clearTestDB, teardownTestDB } from './setupTestDB';
 
 describe('Authentication, Session Security & User Profile API', () => {
@@ -151,8 +152,14 @@ describe('Authentication, Session Security & User Profile API', () => {
     });
 
     expect(forgotRes.status).toBe(200);
-    const resetToken = forgotRes.body.data.resetToken as string;
-    expect(resetToken).toBeTypeOf('string');
+    // Token must NEVER be leaked in the HTTP response body
+    expect(forgotRes.body.data.resetToken).toBeUndefined();
+
+    const lastEmail =
+      consoleEmailProvider.sentEmails[consoleEmailProvider.sentEmails.length - 1];
+    const tokenMatch = lastEmail?.text.match(/([a-f0-9]{64})$/);
+    expect(tokenMatch).not.toBeNull();
+    const resetToken = tokenMatch![1];
 
     const resetRes = await request(app).post('/api/v1/auth/reset-password').send({
       token: resetToken,

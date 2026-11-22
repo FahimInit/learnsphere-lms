@@ -1,8 +1,35 @@
 import { z } from 'zod';
 
+const safeUrlSchema = z
+  .string()
+  .trim()
+  .max(1000, 'URL cannot exceed 1000 characters')
+  .refine(
+    (val) =>
+      val === '' ||
+      val.startsWith('/uploads/') ||
+      /^https?:\/\//i.test(val),
+    'URL must start with https://, http://, or /uploads/'
+  );
+
+export const catalogQuerySchema = z.object({
+  query: z.object({
+    q: z.string().max(120).optional(),
+    category: z.string().max(100).optional(),
+    level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+    minRating: z.coerce.number().min(0).max(5).optional(),
+    priceType: z.enum(['all', 'free', 'paid']).optional(),
+    sort: z
+      .enum(['newest', 'popular', 'rating', 'price_asc', 'price_desc'])
+      .optional(),
+    page: z.coerce.number().int().min(1).max(1000).optional(),
+    limit: z.coerce.number().int().min(1).max(50).optional(),
+  }),
+});
+
 const lessonResourceValidator = z.object({
   title: z.string().trim().min(1, 'Resource title is required').max(140),
-  fileUrl: z.string().trim().min(1, 'Resource file URL is required'),
+  fileUrl: safeUrlSchema.refine((val) => val.length > 0, 'Resource file URL is required'),
   fileSize: z.number().nonnegative().optional().default(0),
   mimeType: z.string().trim().optional().default('application/octet-stream'),
 });
@@ -26,8 +53,8 @@ export const createCourseSchema = z.object({
       .optional()
       .default('beginner'),
     price: z.coerce.number().min(0, 'Price cannot be negative').optional().default(0),
-    thumbnailUrl: z.string().trim().optional().default(''),
-    previewVideoUrl: z.string().trim().optional().default(''),
+    thumbnailUrl: safeUrlSchema.optional().default(''),
+    previewVideoUrl: safeUrlSchema.optional().default(''),
     tags: z.array(z.string().trim()).optional().default([]),
     prerequisites: z.array(z.string().trim()).optional().default([]),
     learningObjectives: z.array(z.string().trim()).optional().default([]),
@@ -46,8 +73,8 @@ export const updateCourseSchema = z.object({
     category: z.string().trim().min(1).optional(),
     level: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
     price: z.coerce.number().min(0).optional(),
-    thumbnailUrl: z.string().trim().optional(),
-    previewVideoUrl: z.string().trim().optional(),
+    thumbnailUrl: safeUrlSchema.optional(),
+    previewVideoUrl: safeUrlSchema.optional(),
     tags: z.array(z.string().trim()).optional(),
     prerequisites: z.array(z.string().trim()).optional(),
     learningObjectives: z.array(z.string().trim()).optional(),
@@ -109,7 +136,7 @@ export const createLessonSchema = z.object({
       .optional()
       .default('video'),
     content: z.string().max(50000).optional().default(''),
-    videoUrl: z.string().trim().optional().default(''),
+    videoUrl: safeUrlSchema.optional().default(''),
     videoDurationSeconds: z.coerce.number().min(0).optional().default(0),
     videoProvider: z
       .enum(['local', 'external', 'mux'])
@@ -130,7 +157,7 @@ export const updateLessonSchema = z.object({
     title: z.string().trim().min(2).max(160).optional(),
     type: z.enum(['video', 'text', 'resource', 'embed']).optional(),
     content: z.string().max(50000).optional(),
-    videoUrl: z.string().trim().optional(),
+    videoUrl: safeUrlSchema.optional(),
     videoDurationSeconds: z.coerce.number().min(0).optional(),
     videoProvider: z.enum(['local', 'external', 'mux']).optional(),
     resources: z.array(lessonResourceValidator).optional(),

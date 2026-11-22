@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { courseController } from './course.controller';
 import {
+  catalogQuerySchema,
   createCourseSchema,
   updateCourseSchema,
   createSectionSchema,
@@ -23,7 +24,7 @@ import { uploadSingleFile } from '../../middleware/upload';
 const router = Router();
 
 // Public catalog & course details
-router.get('/', courseController.listCatalog);
+router.get('/', validate(catalogQuerySchema), courseController.listCatalog);
 
 // Instructor studio endpoints
 router.get(

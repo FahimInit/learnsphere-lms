@@ -27,7 +27,7 @@ router.post(
   authController.login
 );
 
-router.post('/refresh', authController.refresh);
+router.post('/refresh', authRateLimiter, authController.refresh);
 router.post('/logout', authController.logout);
 
 router.post(

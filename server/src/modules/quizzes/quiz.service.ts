@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import { env } from '../../config/env';
 import { Quiz, IQuizDocument } from './quiz.model';
 import { Question, IQuestionDocument } from './question.model';
 import { QuizAttempt, IQuizAttemptDocument } from './quizAttempt.model';
@@ -94,6 +96,7 @@ export class QuizService {
     questions: SanitizedQuestion[];
     attemptsUsed: number;
     remainingAttempts: number;
+    attemptToken: string;
   }> {
     if (!mongoose.Types.ObjectId.isValid(quizId)) {
       throw AppError.badRequest('Invalid quiz ID');
@@ -135,11 +138,23 @@ export class QuizService {
         : {}),
     }));
 
+    const attemptToken = jwt.sign(
+      {
+        type: 'quiz_start',
+        quizId: quiz._id.toString(),
+        studentId: actor.id,
+        startedAtMs: Date.now(),
+      },
+      env.JWT_ACCESS_SECRET,
+      { expiresIn: '24h' }
+    );
+
     return {
       quiz,
       questions: sanitizedQuestions,
       attemptsUsed,
       remainingAttempts: Math.max(0, quiz.maxAttempts - attemptsUsed),
+      attemptToken,
     };
   }
 
@@ -440,7 +455,48 @@ export class QuizService {
     const passed = scorePercentage >= quiz.passingScorePercentage;
 
     const submittedAt = new Date();
-    const startedAt = input.startedAt ? new Date(input.startedAt) : submittedAt;
+    let startedAt = submittedAt;
+
+    if (quiz.timeLimitMinutes !== null && !isPrivileged) {
+      if (!input.attemptToken) {
+        throw AppError.badRequest(
+          'A valid quiz attemptToken from GET /quizzes/:id is required for timed quizzes'
+        );
+      }
+      try {
+        const decoded = jwt.verify(
+          input.attemptToken,
+          env.JWT_ACCESS_SECRET
+        ) as {
+          type?: string;
+          quizId?: string;
+          studentId?: string;
+          startedAtMs?: number;
+        };
+        if (
+          decoded.type !== 'quiz_start' ||
+          decoded.quizId !== quiz._id.toString() ||
+          decoded.studentId !== actor.id ||
+          typeof decoded.startedAtMs !== 'number'
+        ) {
+          throw AppError.badRequest('Invalid quiz attemptToken');
+        }
+        startedAt = new Date(decoded.startedAtMs);
+      } catch (err) {
+        if (err instanceof AppError) throw err;
+        throw AppError.badRequest('Invalid or expired quiz attemptToken');
+      }
+
+      const elapsedSeconds = Math.round(
+        (submittedAt.getTime() - startedAt.getTime()) / 1000
+      );
+      if (elapsedSeconds > quiz.timeLimitMinutes * 60 + 60) {
+        throw AppError.badRequest('Quiz time limit has expired');
+      }
+    } else if (input.startedAt) {
+      startedAt = new Date(input.startedAt);
+    }
+
     const durationSeconds = Math.max(
       0,
       Math.round((submittedAt.getTime() - startedAt.getTime()) / 1000)

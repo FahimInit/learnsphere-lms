@@ -8,7 +8,6 @@ import {
   generateRandomToken,
 } from '../../utils/jwt';
 import { emailService } from '../../infrastructure/email/email.service';
-import { env } from '../../config/env';
 import {
   RegisterInput,
   LoginInput,
@@ -199,7 +198,7 @@ export class AuthService {
 
   async forgotPassword(
     input: ForgotPasswordInput
-  ): Promise<{ resetToken?: string }> {
+  ): Promise<Record<string, never>> {
     const user = await User.findOne({ email: input.email }).select(
       '+passwordResetTokenHash +passwordResetExpiresAt'
     );
@@ -219,9 +218,6 @@ export class AuthService {
       text: `Use the following token to reset your password within 60 minutes: ${rawToken}`,
     });
 
-    if (env.NODE_ENV !== 'production') {
-      return { resetToken: rawToken };
-    }
     return {};
   }
 
