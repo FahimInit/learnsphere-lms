@@ -11,6 +11,8 @@ import progressRoutes from '../modules/progress/progress.routes';
 import quizRoutes from '../modules/quizzes/quiz.routes';
 import assignmentRoutes from '../modules/assignments/assignment.routes';
 import submissionRoutes from '../modules/assignments/submission.routes';
+import discussionRoutes from '../modules/discussions/discussion.routes';
+import notificationRoutes from '../modules/notifications/notification.routes';
 
 const router = Router();
 
@@ -42,5 +44,7 @@ router.use('/progress', progressRoutes);
 router.use('/quizzes', quizRoutes);
 router.use('/assignments', assignmentRoutes);
 router.use('/submissions', submissionRoutes);
+router.use('/discussions', discussionRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;
