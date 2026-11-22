@@ -13,6 +13,9 @@ import assignmentRoutes from '../modules/assignments/assignment.routes';
 import submissionRoutes from '../modules/assignments/submission.routes';
 import discussionRoutes from '../modules/discussions/discussion.routes';
 import notificationRoutes from '../modules/notifications/notification.routes';
+import certificateRoutes from '../modules/certificates/certificate.routes';
+import adminRoutes from '../modules/admin/admin.routes';
+import analyticsRoutes from '../modules/analytics/analytics.routes';
 
 const router = Router();
 
@@ -46,5 +49,8 @@ router.use('/assignments', assignmentRoutes);
 router.use('/submissions', submissionRoutes);
 router.use('/discussions', discussionRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/certificates', certificateRoutes);
+router.use('/admin', adminRoutes);
+router.use('/analytics', analyticsRoutes);
 
 export default router;
