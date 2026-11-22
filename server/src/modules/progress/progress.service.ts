@@ -5,6 +5,7 @@ import {
   IEnrollmentDocument,
 } from '../enrollments/enrollment.model';
 import { Lesson } from '../lessons/lesson.model';
+import { certificateService } from '../certificates/certificate.service';
 import { AppError } from '../../utils/AppError';
 import { AuthenticatedUser } from '../../types/express';
 import { UpdateLessonStateInput } from './progress.validator';
@@ -17,6 +18,7 @@ export class ProgressService {
   ): Promise<{
     lessonProgress: ILessonProgressDocument;
     enrollment: IEnrollmentDocument;
+    certificateCode?: string;
   }> {
     if (!mongoose.Types.ObjectId.isValid(lessonId)) {
       throw AppError.badRequest('Invalid lesson ID');
@@ -91,9 +93,21 @@ export class ProgressService {
 
     await enrollment.save();
 
+    let certificateCode: string | null = null;
+    if (progressPercentage === 100) {
+      const cert = await certificateService.issueCertificateIfEligible(
+        lesson.course.toString(),
+        actor.id
+      );
+      if (cert) {
+        certificateCode = cert.certificateCode;
+      }
+    }
+
     return {
       lessonProgress: progressDoc,
       enrollment,
+      ...(certificateCode ? { certificateCode } : {}),
     };
   }
 
