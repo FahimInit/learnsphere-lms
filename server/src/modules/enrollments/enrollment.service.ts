@@ -9,6 +9,7 @@ import { Section } from '../sections/section.model';
 import { Lesson } from '../lessons/lesson.model';
 import { LessonProgress } from '../progress/progress.model';
 import { courseService, SectionWithLessons } from '../courses/course.service';
+import { notificationService } from '../notifications/notification.service';
 import { AppError } from '../../utils/AppError';
 import { AuthenticatedUser } from '../../types/express';
 
@@ -84,6 +85,14 @@ export class EnrollmentService {
 
     await Course.findByIdAndUpdate(course._id, {
       $inc: { enrollmentCount: 1 },
+    });
+
+    await notificationService.createAndDispatch({
+      recipientId: actor.id,
+      type: 'enrollment',
+      title: 'Enrollment Confirmed',
+      message: `You are now enrolled in "${course.title}". Start learning whenever you are ready!`,
+      linkUrl: `/learn/${course._id.toString()}`,
     });
 
     return enrollment.populate([

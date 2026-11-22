@@ -5,6 +5,7 @@ import { Submission, ISubmissionDocument } from './submission.model';
 import { Course } from '../courses/course.model';
 import { Enrollment } from '../enrollments/enrollment.model';
 import { courseService } from '../courses/course.service';
+import { notificationService } from '../notifications/notification.service';
 import { storageService, StoredFileResult } from '../../infrastructure/storage/storage.service';
 import { AppError } from '../../utils/AppError';
 import { AuthenticatedUser } from '../../types/express';
@@ -390,6 +391,17 @@ export class AssignmentService {
     });
 
     await submission.save();
+
+    await notificationService.createAndDispatch({
+      recipientId: submission.student.toString(),
+      type: 'assignment_graded',
+      title:
+        submission.status === 'returned_for_revision'
+          ? 'Assignment Returned for Revision'
+          : 'Assignment Graded',
+      message: `Your submission for "${assignment.title}" received ${input.grade}/${assignment.maxScore} pts.`,
+      linkUrl: `/learn/${submission.course.toString()}`,
+    });
 
     return submission.populate([
       { path: 'student', select: 'name email avatarUrl' },

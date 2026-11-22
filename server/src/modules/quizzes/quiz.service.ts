@@ -5,6 +5,7 @@ import { QuizAttempt, IQuizAttemptDocument } from './quizAttempt.model';
 import { Course } from '../courses/course.model';
 import { Enrollment } from '../enrollments/enrollment.model';
 import { courseService } from '../courses/course.service';
+import { notificationService } from '../notifications/notification.service';
 import { AppError } from '../../utils/AppError';
 import { AuthenticatedUser } from '../../types/express';
 import {
@@ -458,6 +459,14 @@ export class QuizService {
       startedAt,
       submittedAt,
       durationSeconds,
+    });
+
+    await notificationService.createAndDispatch({
+      recipientId: actor.id,
+      type: 'quiz_result',
+      title: passed ? 'Quiz Passed' : 'Quiz Graded',
+      message: `You scored ${scorePercentage}% (${earnedPoints}/${totalPoints} pts) on "${quiz.title}".`,
+      linkUrl: `/learn/${quiz.course.toString()}`,
     });
 
     return { attempt, review };

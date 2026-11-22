@@ -5,6 +5,7 @@ import { Enrollment, IEnrollmentDocument } from '../enrollments/enrollment.model
 import { Section, ISectionDocument } from '../sections/section.model';
 import { Lesson, ILessonDocument } from '../lessons/lesson.model';
 import { Category } from '../categories/category.model';
+import { notificationService } from '../notifications/notification.service';
 import { AppError } from '../../utils/AppError';
 import { slugify } from '../../utils/slugify';
 import { buildPaginationMeta, PaginationMeta } from '../../utils/apiResponse';
@@ -500,6 +501,20 @@ export class CourseService {
         });
       }
     }
+
+    await notificationService.createAndDispatch({
+      recipientId: course.instructor.toString(),
+      type: 'course_status',
+      title:
+        input.action === 'approve'
+          ? 'Course Approved & Published'
+          : 'Course Review Feedback',
+      message:
+        input.action === 'approve'
+          ? `Your course "${course.title}" has been approved and is now live in the catalog.`
+          : `Your course "${course.title}" requires changes: ${course.rejectionReason}`,
+      linkUrl: `/instructor/courses/${course._id.toString()}/edit`,
+    });
 
     return course.populate([
       { path: 'category', select: 'name slug icon' },
