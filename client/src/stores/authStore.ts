@@ -43,6 +43,35 @@ interface AuthState {
 }
 
 const SESSION_HINT_KEY = 'learnsphere_has_session';
+const AUTH_CHANNEL_NAME = 'learnsphere_auth_sync';
+
+type AuthSyncMessage = {
+  type: 'LOGOUT' | 'LOGIN';
+};
+
+let authChannel: BroadcastChannel | null = null;
+
+function getAuthBroadcastChannel(): BroadcastChannel | null {
+  if (typeof window === 'undefined' || typeof BroadcastChannel === 'undefined') {
+    return null;
+  }
+  if (!authChannel) {
+    try {
+      authChannel = new BroadcastChannel(AUTH_CHANNEL_NAME);
+    } catch {
+      authChannel = null;
+    }
+  }
+  return authChannel;
+}
+
+function broadcastAuthEvent(message: AuthSyncMessage): void {
+  try {
+    getAuthBroadcastChannel()?.postMessage(message);
+  } catch {
+    // ignore BroadcastChannel errors in restricted contexts
+  }
+}
 
 function hasSessionHint(): boolean {
   try {
@@ -66,10 +95,52 @@ function setSessionHint(active: boolean): void {
 }
 
 export const useAuthStore = create<AuthState>((set, get) => {
+  const applyRemoteLogout = () => {
+    setSessionHint(false);
+    setAccessToken(null);
+    set({ user: null, accessToken: null, isInitialized: true, isLoading: false });
+  };
+
+  const applyRemoteLogin = async () => {
+    if (get().user || get().isLoading) return;
+    try {
+      const res = await apiClient.post('/auth/refresh');
+      const { user, accessToken } = res.data.data;
+      setSessionHint(true);
+      setAccessToken(accessToken);
+      set({ user, accessToken, isInitialized: true, isLoading: false });
+    } catch {
+      // ignore if session cookie is not active
+    }
+  };
+
+  const channel = getAuthBroadcastChannel();
+  if (channel) {
+    channel.onmessage = (event: MessageEvent<AuthSyncMessage>) => {
+      if (event.data?.type === 'LOGOUT') {
+        applyRemoteLogout();
+      } else if (event.data?.type === 'LOGIN') {
+        void applyRemoteLogin();
+      }
+    };
+  }
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (event: StorageEvent) => {
+      if (event.key !== SESSION_HINT_KEY) return;
+      if (event.newValue !== '1') {
+        applyRemoteLogout();
+      } else if (event.newValue === '1') {
+        void applyRemoteLogin();
+      }
+    });
+  }
+
   registerSessionRefreshListener((newToken) => {
     if (!newToken) {
       setSessionHint(false);
       set({ user: null, accessToken: null });
+      broadcastAuthEvent({ type: 'LOGOUT' });
     } else {
       setSessionHint(true);
       set({ accessToken: newToken });
@@ -86,12 +157,14 @@ export const useAuthStore = create<AuthState>((set, get) => {
       setSessionHint(true);
       setAccessToken(accessToken);
       set({ user, accessToken, isInitialized: true });
+      broadcastAuthEvent({ type: 'LOGIN' });
     },
 
     clearSession: () => {
       setSessionHint(false);
       setAccessToken(null);
       set({ user: null, accessToken: null, isInitialized: true });
+      broadcastAuthEvent({ type: 'LOGOUT' });
     },
 
     initializeAuth: async () => {
@@ -127,6 +200,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         setSessionHint(true);
         setAccessToken(accessToken);
         set({ user, accessToken, isLoading: false, isInitialized: true });
+        broadcastAuthEvent({ type: 'LOGIN' });
         return user;
       } catch (error) {
         set({ isLoading: false });
@@ -142,6 +216,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         setSessionHint(true);
         setAccessToken(accessToken);
         set({ user, accessToken, isLoading: false, isInitialized: true });
+        broadcastAuthEvent({ type: 'LOGIN' });
         return user;
       } catch (error) {
         set({ isLoading: false });
@@ -156,6 +231,7 @@ export const useAuthStore = create<AuthState>((set, get) => {
         setSessionHint(false);
         setAccessToken(null);
         set({ user: null, accessToken: null });
+        broadcastAuthEvent({ type: 'LOGOUT' });
       }
     },
 
