@@ -1,18 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
-import {
   Shield,
   Users,
   BookCheck,
@@ -44,6 +32,14 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card';
+import {
+  CompactKpiCard,
+  SemiCircleGaugeCard,
+  GroupedBarChartCard,
+  DonutBreakdownCard,
+  SplitBarComparisonCard,
+  DualMetricAreaTrendCard,
+} from '@/components/charts/AnalyticsWidgets';
 
 type AdminTab =
   | 'overview'
@@ -52,8 +48,6 @@ type AdminTab =
   | 'categories'
   | 'moderation'
   | 'audit';
-
-const PIE_COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444'];
 
 export function AdminConsolePage(): React.ReactElement {
   const queryClient = useQueryClient();
@@ -409,108 +403,267 @@ export function AdminConsolePage(): React.ReactElement {
       {/* TAB 1: ANALYTICS OVERVIEW */}
       {activeTab === 'overview' && analytics ? (
         <div className="space-y-6">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Total Platform Users</CardDescription>
-                <CardTitle className="text-2xl">
-                  {analytics.summary.totalUsers}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-xs text-slate-500">
-                {analytics.summary.activeUsers} active •{' '}
-                {analytics.summary.suspendedUsers} suspended
-              </CardContent>
-            </Card>
+          {/* ROW 1: 8-Card KPI Grid + Platform Health Gauge */}
+          <div className="grid gap-4 lg:grid-cols-12">
+            <div className="grid gap-3.5 sm:grid-cols-2 md:grid-cols-4 lg:col-span-9">
+              <CompactKpiCard
+                label="Total Platform Users"
+                value={analytics.summary.totalUsers}
+                trendText={`${analytics.summary.activeUsers} active accounts`}
+                trendDirection="up"
+              />
+              <CompactKpiCard
+                label="Published Courses"
+                value={`${analytics.summary.publishedCourses} / ${analytics.summary.totalCourses}`}
+                trendText={`${analytics.summary.pendingApprovalCourses} awaiting review`}
+                trendDirection="up"
+              />
+              <CompactKpiCard
+                label="Total Enrollments"
+                value={analytics.summary.totalEnrollments}
+                trendText={`${analytics.summary.completedEnrollments} course completions`}
+                trendDirection="up"
+              />
+              <CompactKpiCard
+                label="Certificates Issued"
+                value={analytics.summary.certificatesIssued}
+                trendText="Verified credentials"
+                trendDirection="up"
+              />
+              <CompactKpiCard
+                label="Completion Rate"
+                value={`${
+                  analytics.summary.totalEnrollments > 0
+                    ? Math.round(
+                        (analytics.summary.completedEnrollments /
+                          analytics.summary.totalEnrollments) *
+                          100
+                      )
+                    : 0
+                }%`}
+                trendText="Platform-wide finish ratio"
+                trendDirection="up"
+              />
+              <CompactKpiCard
+                label="Pending Approvals"
+                value={analytics.summary.pendingApprovalCourses}
+                trendText="In moderation queue"
+                trendDirection={
+                  analytics.summary.pendingApprovalCourses > 0 ? 'down' : 'up'
+                }
+              />
+              <CompactKpiCard
+                label="Community Discussions"
+                value={analytics.summary.discussionsCount}
+                trendText="Active Q&A threads"
+                trendDirection="up"
+              />
+              <CompactKpiCard
+                label="Reported Content"
+                value={analytics.summary.reportedContentCount}
+                trendText={`${analytics.summary.suspendedUsers} suspended users`}
+                trendDirection={
+                  analytics.summary.reportedContentCount > 0 ? 'down' : 'up'
+                }
+              />
+            </div>
 
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Courses (Published / Total)</CardDescription>
-                <CardTitle className="text-2xl text-indigo-600">
-                  {analytics.summary.publishedCourses} /{' '}
-                  {analytics.summary.totalCourses}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-xs text-slate-500">
-                {analytics.summary.pendingApprovalCourses} awaiting review
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Total Enrollments</CardDescription>
-                <CardTitle className="text-2xl text-emerald-600">
-                  {analytics.summary.totalEnrollments}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-xs text-slate-500">
-                {analytics.summary.completedEnrollments} completions
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardDescription>Certificates Issued</CardDescription>
-                <CardTitle className="text-2xl">
-                  {analytics.summary.certificatesIssued}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-xs text-slate-500">
-                {analytics.summary.reportedContentCount} reported items pending
-              </CardContent>
-            </Card>
+            <div className="lg:col-span-3">
+              <SemiCircleGaugeCard
+                title="Platform Health"
+                score={Math.max(
+                  60,
+                  Math.min(
+                    98,
+                    100 -
+                      analytics.summary.reportedContentCount * 5 -
+                      analytics.summary.suspendedUsers * 5
+                  )
+                )}
+                actionLabel={`Review Queue (${pendingCourses.length})`}
+                onAction={() => setActiveTab('courses')}
+              />
+            </div>
           </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">
-                  Published Courses by Category
+          {/* ROW 2: Grouped Bar Chart + Donut Chart + Two Split-Bar Comparison Cards */}
+          <div className="grid gap-5 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <GroupedBarChartCard
+                title="Catalog Distribution by Category"
+                data={analytics.breakdowns.categoriesDistribution.map((c) => ({
+                  name: c.name.length > 14 ? `${c.name.slice(0, 14)}..` : c.name,
+                  courses: c.courses,
+                  activeTarget: Math.max(1, c.courses + 1),
+                }))}
+                xKey="name"
+                primaryKey="courses"
+                primaryLabel="Published Courses"
+                secondaryKey="activeTarget"
+                secondaryLabel="Target Capacity"
+              />
+            </div>
+
+            <div className="lg:col-span-4">
+              <DonutBreakdownCard
+                title="User Role Distribution"
+                data={analytics.breakdowns.usersByRole}
+              />
+            </div>
+
+            <div className="flex flex-col justify-between gap-4 lg:col-span-3">
+              <SplitBarComparisonCard
+                title="All Courses"
+                badgeText={`Pending: ${analytics.summary.pendingApprovalCourses}`}
+                primaryLabel="Published"
+                primaryValue={analytics.summary.publishedCourses}
+                primaryDisplay={`${analytics.summary.publishedCourses} courses`}
+                secondaryLabel="Pending / Draft"
+                secondaryValue={Math.max(
+                  0,
+                  analytics.summary.totalCourses -
+                    analytics.summary.publishedCourses
+                )}
+                secondaryDisplay={`${Math.max(
+                  0,
+                  analytics.summary.totalCourses -
+                    analytics.summary.publishedCourses
+                )} courses`}
+                detailsTitle="Catalog Breakdown:"
+                details={analytics.breakdowns.coursesByStatus.slice(0, 3).map((s) => ({
+                  label: s.name,
+                  value: s.value,
+                }))}
+              />
+
+              <SplitBarComparisonCard
+                title="All Enrollments"
+                badgeText={`Issued Certs: ${analytics.summary.certificatesIssued}`}
+                primaryLabel="Completed"
+                primaryValue={analytics.summary.completedEnrollments}
+                primaryDisplay={`${analytics.summary.completedEnrollments} completed`}
+                secondaryLabel="Active"
+                secondaryValue={Math.max(
+                  0,
+                  analytics.summary.totalEnrollments -
+                    analytics.summary.completedEnrollments
+                )}
+                secondaryDisplay={`${Math.max(
+                  0,
+                  analytics.summary.totalEnrollments -
+                    analytics.summary.completedEnrollments
+                )} in progress`}
+                detailsTitle="Engagement Details:"
+                details={[
+                  { label: 'Total Enrolled', value: analytics.summary.totalEnrollments },
+                  { label: 'Discussions', value: analytics.summary.discussionsCount },
+                  { label: 'Certificates', value: analytics.summary.certificatesIssued },
+                ]}
+              />
+            </div>
+          </div>
+
+          {/* ROW 3: Area Trend Chart + Pending Courses Table + Governance Summary Stack */}
+          <div className="grid gap-5 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <DualMetricAreaTrendCard
+                title="Platform Activity & Lifecycle Flow"
+                leftMetricLabel="Active Users"
+                leftMetricValue={analytics.summary.activeUsers}
+                rightMetricLabel="Total Enrollments"
+                rightMetricValue={analytics.summary.totalEnrollments}
+                data={analytics.breakdowns.coursesByStatus.map((item) => ({
+                  stage: item.name,
+                  count: item.value,
+                }))}
+                xKey="stage"
+                yKey="count"
+                yLabel="Courses"
+              />
+            </div>
+
+            <Card className="border-slate-200/90 shadow-sm lg:col-span-4">
+              <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-5">
+                <CardTitle className="text-sm font-bold text-slate-900">
+                  Moderation Queue
                 </CardTitle>
+                <span className="text-xs font-medium text-slate-400">
+                  {pendingCourses.length} pending
+                </span>
               </CardHeader>
-              <CardContent className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={analytics.breakdowns.categoriesDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                    <Tooltip />
-                    <Bar
-                      dataKey="courses"
-                      fill="#4f46e5"
-                      radius={[6, 6, 0, 0]}
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+              <CardContent className="px-5 pb-4 pt-1">
+                {pendingCourses.length === 0 ? (
+                  <p className="py-10 text-center text-xs text-slate-400">
+                    All submitted courses have been reviewed.
+                  </p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-100 text-[11px] font-semibold text-slate-400">
+                          <th className="pb-2 pr-2">Course</th>
+                          <th className="pb-2 px-2">Instructor</th>
+                          <th className="pb-2 px-2">Status</th>
+                          <th className="pb-2 pl-2 text-right">Lessons</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {pendingCourses.slice(0, 5).map((c) => (
+                          <tr key={c._id} className="hover:bg-slate-50/70">
+                            <td className="py-2.5 pr-2 font-semibold text-slate-800 max-w-[130px] truncate">
+                              {c.title}
+                            </td>
+                            <td className="py-2.5 px-2 text-slate-500 truncate max-w-[90px]">
+                              {c.instructor?.name || 'Instructor'}
+                            </td>
+                            <td className="py-2.5 px-2">
+                              <span className="inline-block rounded bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase text-amber-700">
+                                REVIEW
+                              </span>
+                            </td>
+                            <td className="py-2.5 pl-2 text-right font-bold text-slate-800">
+                              {c.totalLessonsCount}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">User Role Distribution</CardTitle>
+            <Card className="border-slate-200/90 shadow-sm lg:col-span-3">
+              <CardHeader className="pb-2 pt-4 px-5">
+                <CardTitle className="text-sm font-bold text-slate-900">
+                  Accounts &amp; Governance
+                </CardTitle>
               </CardHeader>
-              <CardContent className="h-72">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={analytics.breakdowns.usersByRole}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={90}
-                      label
-                    >
-                      {analytics.breakdowns.usersByRole.map((_, idx) => (
-                        <Cell
-                          key={idx}
-                          fill={PIE_COLORS[idx % PIE_COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
+              <CardContent className="space-y-2.5 px-5 pb-4 pt-1">
+                <div className="rounded-lg border border-slate-200/80 bg-slate-50/50 p-3">
+                  <p className="text-xs font-medium text-slate-500">
+                    Active Accounts
+                  </p>
+                  <p className="mt-0.5 text-xl font-extrabold text-slate-900">
+                    {analytics.summary.activeUsers}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-200/80 bg-slate-50/50 p-3">
+                  <p className="text-xs font-medium text-slate-500">
+                    Verified Certificates
+                  </p>
+                  <p className="mt-0.5 text-xl font-extrabold text-slate-900">
+                    {analytics.summary.certificatesIssued}
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-200/80 bg-slate-50/50 p-3">
+                  <p className="text-xs font-medium text-slate-500">
+                    Open Reports
+                  </p>
+                  <p className="mt-0.5 text-xl font-extrabold text-slate-900">
+                    {analytics.summary.reportedContentCount}
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </div>

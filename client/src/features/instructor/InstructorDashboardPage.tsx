@@ -2,15 +2,6 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from 'recharts';
-import {
   Plus,
   BookOpen,
   Users,
@@ -39,6 +30,13 @@ import {
   CardContent,
   CardFooter,
 } from '@/components/ui/card';
+import {
+  CompactKpiCard,
+  SemiCircleGaugeCard,
+  GroupedBarChartCard,
+  DonutBreakdownCard,
+  SplitBarComparisonCard,
+} from '@/components/charts/AnalyticsWidgets';
 
 function getStatusBadge(status: CourseStatus): React.ReactElement {
   switch (status) {
@@ -241,77 +239,185 @@ export function InstructorDashboardPage(): React.ReactElement {
         </div>
       ) : null}
 
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Courses</CardDescription>
-            <CardTitle className="text-2xl">{courses.length}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Published</CardDescription>
-            <CardTitle className="text-2xl text-emerald-600">
-              {publishedCount}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Pending Review</CardDescription>
-            <CardTitle className="text-2xl text-amber-600">
-              {pendingCount}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Enrollments</CardDescription>
-            <CardTitle className="text-2xl text-indigo-600">
-              {totalEnrollments}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+      {/* SmartLedger-Style Instructor Studio Analytics Suite */}
+      <div className="grid gap-4 lg:grid-cols-12">
+        <div className="grid gap-3.5 sm:grid-cols-2 md:grid-cols-4 lg:col-span-9">
+          <CompactKpiCard
+            label="Total Courses"
+            value={courses.length}
+            trendText={`${publishedCount} live in catalog`}
+            trendDirection="up"
+          />
+          <CompactKpiCard
+            label="Published Tracks"
+            value={publishedCount}
+            trendText="Approved & active"
+            trendDirection="up"
+          />
+          <CompactKpiCard
+            label="Pending Review"
+            value={pendingCount}
+            trendText="In moderation queue"
+            trendDirection="neutral"
+          />
+          <CompactKpiCard
+            label="Total Enrollments"
+            value={totalEnrollments}
+            trendText={`${instructorAnalytics?.summary.completedEnrollments ?? 0} completed`}
+            trendDirection="up"
+          />
+          <CompactKpiCard
+            label="Completion Rate"
+            value={`${instructorAnalytics?.summary.completionRate ?? 0}%`}
+            trendText="Student finish ratio"
+            trendDirection="up"
+          />
+          <CompactKpiCard
+            label="Quiz Pass Rate"
+            value={`${instructorAnalytics?.summary.quizPassRate ?? 0}%`}
+            trendText={`Avg Score: ${instructorAnalytics?.summary.avgQuizScore ?? 0}%`}
+            trendDirection="up"
+          />
+          <CompactKpiCard
+            label="Submissions Graded"
+            value={instructorAnalytics?.submissionStats.graded ?? 0}
+            trendText={`${instructorAnalytics?.submissionStats.pendingReview ?? 0} awaiting review`}
+            trendDirection="up"
+          />
+          <CompactKpiCard
+            label="Total Quiz Attempts"
+            value={instructorAnalytics?.summary.totalQuizAttempts ?? 0}
+            trendText="Across all assessments"
+            trendDirection="up"
+          />
+        </div>
+
+        <div className="lg:col-span-3">
+          <SemiCircleGaugeCard
+            title="Studio Health"
+            score={
+              instructorAnalytics
+                ? Math.round(
+                    (instructorAnalytics.summary.completionRate || 75) * 0.5 +
+                      (instructorAnalytics.summary.quizPassRate || 85) * 0.5
+                  )
+                : 82
+            }
+            actionLabel="Launch Course Wizard"
+            onAction={() => setIsCreateModalOpen(true)}
+          />
+        </div>
       </div>
 
-      {instructorAnalytics && instructorAnalytics.charts.coursePerformance.length > 0 ? (
-        <Card>
-          <CardHeader className="flex flex-col justify-between gap-2 sm:flex-row sm:items-center">
-            <div>
-              <CardTitle className="text-base">
-                Course Engagement &amp; Assessment Analytics
-              </CardTitle>
-              <CardDescription>
-                Completion Rate: {instructorAnalytics.summary.completionRate}% •
-                Quiz Pass Rate: {instructorAnalytics.summary.quizPassRate}% •
-                Pending Assignments:{' '}
-                {instructorAnalytics.submissionStats.pendingReview}
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardContent className="h-60">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={instructorAnalytics.charts.coursePerformance}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Bar
-                  dataKey="enrollments"
-                  name="Enrollments"
-                  fill="#4f46e5"
-                  radius={[4, 4, 0, 0]}
-                />
-                <Bar
-                  dataKey="avgProgress"
-                  name="Avg Progress (%)"
-                  fill="#10b981"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {instructorAnalytics ? (
+        <div className="grid gap-5 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <GroupedBarChartCard
+              title="Enrollments vs Avg Completion (%)"
+              data={
+                instructorAnalytics.charts.coursePerformance.length > 0
+                  ? instructorAnalytics.charts.coursePerformance
+                  : [{ name: 'No Courses', enrollments: 0, avgProgress: 0 }]
+              }
+              xKey="name"
+              primaryKey="enrollments"
+              primaryLabel="Enrollments"
+              secondaryKey="avgProgress"
+              secondaryLabel="Avg Progress (%)"
+            />
+          </div>
+
+          <div className="lg:col-span-4">
+            <DonutBreakdownCard
+              title="Curriculum & Assessment Mix"
+              data={[
+                { name: 'Published Courses', value: publishedCount },
+                { name: 'Pending Review', value: pendingCount },
+                {
+                  name: 'Completed Learners',
+                  value: instructorAnalytics.summary.completedEnrollments,
+                },
+                {
+                  name: 'Graded Submissions',
+                  value: instructorAnalytics.submissionStats.graded,
+                },
+                {
+                  name: 'Quiz Attempts',
+                  value: instructorAnalytics.summary.totalQuizAttempts,
+                },
+              ]}
+            />
+          </div>
+
+          <div className="flex flex-col justify-between gap-4 lg:col-span-3">
+            <SplitBarComparisonCard
+              title="All Enrollments"
+              badgeText={`Total: ${totalEnrollments}`}
+              primaryLabel="Completed"
+              primaryValue={instructorAnalytics.summary.completedEnrollments}
+              primaryDisplay={`${instructorAnalytics.summary.completedEnrollments} learners`}
+              secondaryLabel="In Progress"
+              secondaryValue={Math.max(
+                0,
+                totalEnrollments -
+                  instructorAnalytics.summary.completedEnrollments
+              )}
+              secondaryDisplay={`${Math.max(
+                0,
+                totalEnrollments -
+                  instructorAnalytics.summary.completedEnrollments
+              )} learners`}
+              detailsTitle="Cohort Metrics:"
+              details={[
+                {
+                  label: 'Completion Rate',
+                  value: `${instructorAnalytics.summary.completionRate}%`,
+                },
+                {
+                  label: 'Quiz Pass Rate',
+                  value: `${instructorAnalytics.summary.quizPassRate}%`,
+                },
+                {
+                  label: 'Avg Quiz Score',
+                  value: `${instructorAnalytics.summary.avgQuizScore}%`,
+                },
+              ]}
+            />
+
+            <SplitBarComparisonCard
+              title="All Submissions"
+              badgeText={`Pending: ${instructorAnalytics.submissionStats.pendingReview}`}
+              primaryLabel="Graded"
+              primaryValue={instructorAnalytics.submissionStats.graded}
+              primaryDisplay={`${instructorAnalytics.submissionStats.graded} graded`}
+              secondaryLabel="Pending / Revision"
+              secondaryValue={
+                instructorAnalytics.submissionStats.pendingReview +
+                instructorAnalytics.submissionStats.returnedForRevision
+              }
+              secondaryDisplay={`${
+                instructorAnalytics.submissionStats.pendingReview +
+                instructorAnalytics.submissionStats.returnedForRevision
+              } open`}
+              detailsTitle="Queue Details:"
+              details={[
+                {
+                  label: 'Awaiting Review',
+                  value: instructorAnalytics.submissionStats.pendingReview,
+                },
+                {
+                  label: 'Needs Revision',
+                  value:
+                    instructorAnalytics.submissionStats.returnedForRevision,
+                },
+                {
+                  label: 'Total Submitted',
+                  value: instructorAnalytics.submissionStats.total,
+                },
+              ]}
+            />
+          </div>
+        </div>
       ) : null}
 
       {isLoading ? (
