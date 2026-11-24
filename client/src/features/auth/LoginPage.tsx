@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { GraduationCap, AlertCircle } from 'lucide-react';
+import { GraduationCap, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { extractErrorMessage } from '@/lib/api';
 import { Button } from '@/components/ui/button';
@@ -29,6 +29,7 @@ export function LoginPage(): React.ReactElement {
   const navigate = useNavigate();
   const location = useLocation();
   const [serverError, setServerError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -99,10 +100,24 @@ export function LoginPage(): React.ReactElement {
             <div className="space-y-1">
               <Input
                 label="Password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 placeholder="••••••••"
                 autoComplete="current-password"
                 error={errors.password?.message}
+                rightElement={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    className="rounded p-1 text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                }
                 {...register('password')}
               />
               <div className="flex justify-end">
